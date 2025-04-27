@@ -19,7 +19,7 @@ export class Web3Data{
             provider = new Web3(window.ethereum);
             
         } else {
-            provider = new Web3(new Web3.providers.HttpProvider('https://sepolia.infura.io/v3/YOUR_INFURA_PROJECT_ID'));
+            provider = new Web3(new Web3.providers.HttpProvider('https://sepolia.infura.io/v3/88367459424444b6bd970a6a812a2098'));
 
         }
         this.web3 = provider;

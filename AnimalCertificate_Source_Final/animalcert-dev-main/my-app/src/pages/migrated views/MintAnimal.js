@@ -73,27 +73,36 @@ const MintAnimal = () => {
   };
 
   const mint = async (gender, species, name, birthdate, diseases, furColor, imageHash) => {
-    const config = await prepareWriteContract({
-      address: contract_address,
-      abi: contract_abi,
-      functionName: 'mint',
-      args: [gender, species, name, birthdate, diseases, furColor, imageHash]
-    });
-
     try {
+      console.log("🔵 Starting mint function...");
+  
+      const config = await prepareWriteContract({
+        address: contract_address,
+        abi: contract_abi,
+        functionName: 'mint',
+        args: [gender, species, name, birthdate, diseases, furColor, imageHash]
+      });
+  
+      console.log("✅ prepareWriteContract successful:", config);
+  
       const transaction = await writeContract(config);
+      console.log("✅ writeContract successful:", transaction);
+  
       const url = `https://sepolia.etherscan.io/tx/${transaction.hash}`;
       dispatch(setColor('green'));
       dispatch(setCountdown(5000));
       dispatch(setText('Animal minted successfully!'));
       dispatch(setLink(<a href={url} target="_blank" rel="noopener noreferrer">{transaction.hash}</a>));
+  
     } catch (error) {
+      console.error("❌ Minting failed:", error);
       dispatch(setColor('red'));
       dispatch(setCountdown(5000));
-      dispatch(setText(error.message));
+      dispatch(setText(error.message || "Minting failed"));
       dispatch(setLink(''));
     }
   };
+  
 
   return (
     <main className="mb-4 p-4 rounded-lg w-full milky-glass border-2 border-solid border-neutral-200">

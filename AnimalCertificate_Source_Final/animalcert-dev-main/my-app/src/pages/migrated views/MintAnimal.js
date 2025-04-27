@@ -159,7 +159,7 @@ const MintAnimal = () => {
         >
           <input
             type='text'
-            placeholder='e.g. Tim'
+            placeholder='Ent a name for your animal'
             onChange={(e) => setName(e.target.value)}
             value={name}
             required

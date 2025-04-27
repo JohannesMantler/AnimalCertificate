@@ -1,0 +1,204 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,700;1,500;1,700&family=Saira:wght@400;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .blue-glow-text {
+    text-shadow: 0 0 .75rem #97bbf0;
+  }
+
+  .blue-glow-element {
+    box-shadow: 0 0 .75rem #97bbf0;
+  }
+
+  .font-saria {
+    font-family: 'Saira', sans-serif;
+  }
+
+  .font-lora {
+    font-family: 'Lora', serif;
+    font-weight: 500;
+  }
+
+  .colorful-bg {
+    background: linear-gradient(to top right, #ff763e, #ff2cff);
+    background-size: cover;
+    background-attachment: fixed;
+  }
+  
+  .milky-glass {
+    @apply backdrop-blur-md bg-white/25;
+  }
+
+  
+  @keyframes breathe-opacity {
+    0% {
+      opacity: 0.95;
+    }
+    50% {
+      opacity: 0.65;
+    }
+    100% {
+      opacity: 0.95;
+    }
+  }
+}
+
+@layer components {
+
+  main {
+    @apply mt-28 container mx-auto px-7
+  }
+
+  .page-heading {
+    @apply font-saria text-6xl font-bold text-center blue-glow-text
+  }
+  
+  .nav-element {
+    @apply flex grow p-0 m-0 
+  }
+
+  .nav-link { 
+    @apply py-2 px-8 rounded-lg text-center align-middle self-center grow select-none cursor-pointer transition-all duration-300
+  }
+  
+  .nav-link:hover {
+    @apply underline shadow-sm backdrop-blur-sm bg-white/20
+  }
+
+  .crypto-button {
+    font-weight: 600;
+    line-height: 1.625rem;
+    min-width: 5rem;
+    border: solid black 0.125rem;
+    
+    @apply w-fit font-saria select-none inline-block px-4 rounded-lg bg-white text-black cursor-pointer text-center transition-colors
+  }
+
+  .crypto-button:hover {
+    @apply bg-gray-200
+  }
+  
+  .dragging {
+    animation: breathe-opacity 1333ms infinite;
+    @apply border-dotted backdrop-blur-3xl;
+  }
+
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    @apply top-0 left-0 font-lora colorful-bg m-0 w-screen text-white overflow-x-hidden;
+  }
+
+
+  .radial-menu-container {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .radial-title {
+    width: 15rem;
+    text-align: center;
+    font-size: 2rem;
+
+    color: #3541df;
+  }
+
+
+  .radial-wrapper {
+    width: 15rem;
+    height: 15rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .radial-circle-wrapper {
+    width: 11rem;
+    height: 11rem;
+    border-radius: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    transition: scale 155ms linear, rotate 333ms ease;
+
+    border: 0.75rem solid #f36af6;
+
+    scale: 1;
+  }
+
+  .radial-center {
+    color: #f5d7f9;
+
+    width: 6rem;
+    height: 6rem;
+    border-radius: 100%;
+    background-color: #3541df;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+
+    border: .25rem solid #f36af6;
+
+    z-index: 10;
+
+    transition: transform 111ms ease;
+    cursor: pointer;
+  }
+
+  .radial-center:hover {
+    transform: scale(.95);
+  }
+
+  .radial-center:active {
+    transform: scale(.9);
+  }
+
+  .radial-circle {
+    color: #f5d7f9;
+
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 100%;
+    background-color: #3541df;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border: .25rem solid #f36af6;
+
+    transition: transform 111ms ease;
+
+    cursor: pointer;
+
+    transform: scale(1);
+  }
+
+  .radial-circle:hover {
+    transform: scale(1.1);
+  }
+
+  .radial-circle:active {
+    transform: scale(1.05);
+  }
+
+  .radial-circle-wrapper.hidden {
+    scale: 0;
+    rotate: -60deg;
+  }
+
+  .radial-circle-wrapper.hidden .circle {
+    transform: scale(1.5);
+  }
+  
+}

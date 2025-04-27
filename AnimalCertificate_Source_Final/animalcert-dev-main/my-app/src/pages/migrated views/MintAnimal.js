@@ -56,7 +56,7 @@ const MintAnimal = () => {
 
       console.log("✅ Image uploaded to:", imageUrl);
 
-      setImageHash(imageUrl);
+      setImageHash(ipfsHash);
       setImagePreview(imageUrl);
 
       dispatch(setColor("green"));

@@ -147,11 +147,11 @@ const MintAnimal = () => {
             mint(
                 parseInt(gender),
                 parseInt(species),
-                name,
+                name.trim(),
                 unixTimestamp,
                 diseases.map(d => parseInt(d)), // just in case
                 parseInt(furColor),
-                imageHash
+                imageHash.trim().replace(/^https:\/\/[^/]+\/ipfs\//, '')
               )
               .finally(() => setLoading(false));
           }}

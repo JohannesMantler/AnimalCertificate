@@ -31,7 +31,7 @@ export class Web3Data{
     
     //contractAdress from Remix
     updateContract(){
-        const contractAddress = '0x4817c013e3B4ef43FC8b1753A6f2b91C9dE56AE3';
+        const contractAddress = '0x68Baff113bDAC3e4B9DF1E444dfBF802245E06Fd';
         const newContract = new this.web3.eth.Contract(CONTRACT_ABI.abi, contractAddress);
         this.contract = newContract;
         console.log("Updated contract");

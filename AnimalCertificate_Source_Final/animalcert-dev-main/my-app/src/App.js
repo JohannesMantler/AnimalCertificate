@@ -1,6 +1,9 @@
-import './App.css';
+// src/App.js
 
-import React, { useState, useEffect } from 'react';
+import './App.css'; // You can delete this after cleanup
+import './index.css'; // Import your new Tailwind styles
+
+import React from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Layout from "./pages/layout/Layout";
@@ -15,33 +18,27 @@ import AnimalPedigree from './pages/AnimalPedigree';
 
 import MintAnimal from './pages/migrated views/MintAnimal';
 
-
-
 const App = () => {
-
-    
-    
-    
-    return(
-        <BrowserRouter>
-            <Routes>
-                <Route path="/" element={<Layout/>}>
-                    <Route index element={<Home />} />
-                    <Route path="nft" element={<Nft />} />
-                    <Route path="animals">
-                        <Route index exact element={<ShowAll/>} />
-                        <Route path="new" exact element={<MintAnimal />} />
-                        <Route path=":id" element={<AnimalDetails />} />
+    return (
+        <div className="font-inter text-white bg-slate-900 min-h-screen overflow-x-hidden">
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/" element={<Layout />}>
+                        <Route index element={<Home />} />
+                        <Route path="nft" element={<Nft />} />
+                        <Route path="animals">
+                            <Route index element={<ShowAll />} />
+                            <Route path="new" element={<MintAnimal />} />
+                            <Route path=":id" element={<AnimalDetails />} />
+                        </Route>
+                        <Route path="owner/:id" element={<AnimalsByOwner />} />
+                        <Route path="ancestry/:id" element={<AnimalPedigree />} />
+                        <Route path="*" element={<NoPage />} />
                     </Route>
-                    <Route path="owner/:id" element={<AnimalsByOwner />} />
-                    <Route path="ancestry/:id" element={<AnimalPedigree />} />
-                    <Route path="*" element={<NoPage />} />
-                </Route>
-            </Routes>
-        </BrowserRouter>
+                </Routes>
+            </BrowserRouter>
+        </div>
     );
-
-    
-}
+};
 
 export default App;

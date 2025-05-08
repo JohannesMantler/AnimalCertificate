@@ -283,7 +283,15 @@ const AnimalDetails = () => {
     };
     
     
-    
+    if (single_read_animal.isError) {
+        return (
+          <main className="p-8 text-white text-center">
+            <h1 className="text-3xl font-bold mb-4">Animal Not Found</h1>
+            <p>Could not load animal data for ID <b>{id}</b>.</p>
+            <p className="text-sm mt-2 text-red-400">{single_read_animal.error?.message}</p>
+          </main>
+        );
+      }
 
     return (
         <main className="p-4 rounded-lg w-full milky-glass border-2 border-solid border-neutral-200">

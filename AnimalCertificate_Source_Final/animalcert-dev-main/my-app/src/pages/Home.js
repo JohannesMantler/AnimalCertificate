@@ -1,107 +1,75 @@
-import { Link } from "react-router-dom";
 import React, { useRef } from 'react';
-
 import { useSelector, useDispatch } from 'react-redux';
-import {
-    setSearchString
-} from '../redux/slices/sorterSlice';
-
-import {
-    useContractRead,
-} from 'wagmi'
-
+import { setSearchString } from '../redux/slices/sorterSlice';
+import { useContractRead } from 'wagmi';
 import AnimalCertificateABI from '../abis/AnimalCertificate.json';
+import { Link } from "react-router-dom";
 
 const Home = () => {
-    const searchRef = useRef(null)
+  const searchRef = useRef(null);
+  const dispatch = useDispatch();
 
-    
-    const contract_supply = useContractRead({
-        abi: AnimalCertificateABI,
-        address: useSelector((state) => state.contract.address),
-        functionName: 'totalSupply',
-        watch: true,
-    })
-    
-    const count = useSelector((state) => state.counter.value);
-    const dispatch = useDispatch();
+  const contract_supply = useContractRead({
+    abi: AnimalCertificateABI,
+    address: useSelector((state) => state.contract.address),
+    functionName: 'totalSupply',
+    watch: true,
+  });
 
+  const handleSearchClick = () => {
+    if (searchRef.current) {
+      dispatch(setSearchString(searchRef.current.value));
+      window.location.href = "/animals/";
+    }
+  };
 
-    const handleSearchClick = () => {
-        if (searchRef.current!==null) {
-            const searchString = searchRef.current.value;;
-            
-            dispatch(setSearchString(searchString));
-            
-            window.location.href = "/animals/";
-        }
-        
-    };
+  return (
+    <main className="p-8 mx-auto max-w-5xl glass-card mt-32">
+      <h1 className="text-5xl md:text-7xl font-bold text-center soft-glow-text mb-6 font-inter">
+        Animal Certificate
+      </h1>
 
-    return (
+      <h2 className="text-xl text-center text-gray-300 font-medium mb-10">
+        Introducing <span className="text-white font-semibold">Animal Certificate</span>: your pet’s digital identity 🐾
+      </h2>
 
+      {/* Search Bar */}
+      <div className="flex justify-center mb-12">
+        <div className="flex flex-col w-full max-w-md">
+          <label className="text-sm text-gray-400 mb-2">Find a certificate</label>
+          <div className="relative">
+            <input
+              ref={searchRef}
+              type="text"
+              placeholder="0x..."
+              className="bg-transparent border-b-2 border-gray-400 text-white text-xl w-full focus:outline-none focus:border-blue-300"
+            />
+            <button
+              onClick={handleSearchClick}
+              className="absolute right-0 top-0 mt-2 text-sm underline text-blue-300 hover:no-underline"
+            >
+              [Find...]
+            </button>
+          </div>
+          <Link to="/animals" className="mt-4 text-sm underline text-gray-300 hover:text-white">[Find all...]</Link>
+        </div>
+      </div>
 
-        <main className="
-            p-4 rounded-lg
-            w-full
-            
-            milky-glass
-            border-2 border-solid border-neutral-200
-            
-        ">
-            <h1 className="
-            	p-2 font-saria text-8xl font-bold text-center blue-glow-text
-            ">Animal Certificate</h1>
-            <span className="
-                flex flex-row
-                p-2 w-full
-                justify-center
-                items-center
-            ">
-                <span className="
-                    text-3xl w-fit break-keep
-                ">🚀🌟</span>
-                
-                <h2 className="
-                    font-saria text-2xl text-center blue-glow-text
-                ">
-                    Introducing <b>Animal Certificate</b>: Your Furry Friend's Ticket to the Digital Age!
-                </h2>
-
-                <span className="
-                    text-3xl w-fit break-keep
-                ">🌟🚀</span>
-            
-            </span>
-
-            <div className="mx-8 my-12 flex justify-center">
-                <div class="flex flex-col w-full max-w-md">
-                    <label class="text-sm mb-1">Find a certificate</label>
-                    <div class="relative">
-                        <div class="relative">
-                            <input ref={searchRef} type="text"  placeholder="0x..." class="bg-transparent text-white text-2xl w-full border-b border-white focus:border-gray-300 focus:outline-none"></input>
-                            <button onClick={handleSearchClick} class="absolute right-0 top-0 mt-2 text-sm underline hover:no-underline">[Find...]</button>
-                        </div>
-                    </div>
-                    <Link to="/animals" class="text-lg underline mt-4">[Find all...]</Link>
-                </div>
-            </div>
-
-            <div class="mx-8 mt-12">
-                <h2 class="text-2xl font-medium text-white mb-4"><span class="mr-2">&#9658;</span>Mission:</h2>
-                <p class="text-lg">
-                    🌟 Welcome to the FUTURE of pet care! 🌟
-                    
-                    There are currently { contract_supply.isSuccess ? Number(contract_supply.data) : contract_supply.status } pets Certified through our service. <br />
-                    { contract_supply.isError ? contract_supply.error.toString() : "" }
-                </p>
-            </div>
-
-        </main>
-
-
-
-    );
+      {/* Info Block */}
+      <section className="mt-10">
+        <h3 className="text-2xl font-semibold text-white mb-3">
+          <span className="mr-2">&#9658;</span> Mission:
+        </h3>
+        <p className="text-lg text-gray-200 leading-relaxed">
+          🌟 Welcome to the FUTURE of pet care! 🌟 <br />
+          There are currently <strong>
+            {contract_supply.isSuccess ? Number(contract_supply.data) : contract_supply.status}
+          </strong> pets certified through our service.<br />
+          {contract_supply.isError && <span className="text-red-400 text-sm">{contract_supply.error.toString()}</span>}
+        </p>
+      </section>
+    </main>
+  );
 };
 
 export default Home;

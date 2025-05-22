@@ -116,15 +116,16 @@ const MintAnimal = () => {
 
             const unixTimestamp = Math.floor(new Date(birthdate).getTime() / 1000);
 
-            console.log("Debug fields:", {
-              furColor,
-              species,
-              gender,
-              name,
-              birthdate,
-              diseases,
-              imageHash
+            console.log("Mint args:", {
+              gender: parseInt(gender),
+              species: parseInt(species),
+              name: name.trim(),
+              birthdate: unixTimestamp,
+              diseases: diseases.map(d => parseInt(d)),
+              furColor: parseInt(furColor),
+              imageHash: imageHash.trim().replace(/^https:\/\/[^/]+\/ipfs\//, '')
             });
+
 
             if (
               !furColor ||

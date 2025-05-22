@@ -19,6 +19,8 @@ import contract_abi from '../abis/AnimalCertificate.json';
 const ShowAll = () => {
   const dispatch = useDispatch();
   const contract_address = useSelector((state) => state.contract.address);
+  console.log("🚨 Contract address in ShowAll:", contract_address);
+
 
   const sortBy = useSelector((state) => state.sorter.sort_by);
   const sortDir = useSelector((state) => state.sorter.sort_dir);
@@ -72,6 +74,8 @@ const ShowAll = () => {
             ...siftBigInt(rawAnimal),
             owner: siftBigInt(owner),
           };
+          console.log("✅ Cleaned animal data:", cleaned);
+
   
           updatedAnimals.push(cleaned);
         } catch (err) {
@@ -81,11 +85,13 @@ const ShowAll = () => {
     }
   
     dispatch(mergeAnimals(updatedAnimals));
+    console.log("🚀 Merging animals to Redux:", updatedAnimals);
     setLoading(false);
   };
   
 
   useEffect(() => {
+    console.log("🔢 totalSupply result:", contract_supply.data);
     if (contract_supply.isSuccess && contract_supply.data) {
       fetchAnimalsFromContract();
     }
@@ -101,6 +107,8 @@ const ShowAll = () => {
         includeMatches: true,
         threshold: 0.2,
       });
+
+      console.log("🔍 Animals before filtering/sorting:", unsortedAnimals);
 
       let filtered = unsortedAnimals;
       if (searchString) {

@@ -116,16 +116,17 @@ const MintAnimal = () => {
 
             const unixTimestamp = Math.floor(new Date(birthdate).getTime() / 1000);
 
+            const parsedDiseases = Uint8Array.from(diseases.map((d) => Number(d)));
+
             console.log("Mint args:", {
               gender: parseInt(gender),
               species: parseInt(species),
               name: name.trim(),
               birthdate: unixTimestamp,
-              diseases: diseases.map((d) => Number(d)),
+              diseases: parsedDiseases,
               furColor: parseInt(furColor),
               imageHash: imageHash.trim().replace(/^https:\/\/[^/]+\/ipfs\//, '')
             });
-
 
             if (
               !furColor ||
@@ -146,16 +147,16 @@ const MintAnimal = () => {
             }
 
             mint(
-                parseInt(gender),
-                parseInt(species),
-                name.trim(),
-                unixTimestamp,
-                diseases.map((d) => Number(d)),
-                parseInt(furColor),
-                imageHash.trim().replace(/^https:\/\/[^/]+\/ipfs\//, '')
-              )
-              .finally(() => setLoading(false));
+              parseInt(gender),
+              parseInt(species),
+              name.trim(),
+              unixTimestamp,
+              parsedDiseases,
+              parseInt(furColor),
+              imageHash.trim().replace(/^https:\/\/[^/]+\/ipfs\//, '')
+            ).finally(() => setLoading(false));
           }}
+
           className='mx-10'
         >
           <input

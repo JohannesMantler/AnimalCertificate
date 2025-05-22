@@ -116,7 +116,7 @@ const MintAnimal = () => {
 
             const unixTimestamp = Math.floor(new Date(birthdate).getTime() / 1000);
 
-            const parsedDiseases = Uint8Array.from(diseases.map((d) => Number(d)));
+            const parsedDiseases = diseases.map((d) => Number(d));
 
             console.log("Mint args:", {
               gender: parseInt(gender),

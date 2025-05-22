@@ -34,7 +34,7 @@ export class Web3Data{
         const contractAddress = '0xAd08597c76dF3f9942B29C85196b4926eb204eb2';
         const newContract = new this.web3.eth.Contract(CONTRACT_ABI.abi, contractAddress);
         this.contract = newContract;
-        console.log("Updated contract");
+        console.log("Updated contract:", this.contract.methods.mint);
     }
     
     async updateAddressAsync(){

@@ -121,7 +121,7 @@ const MintAnimal = () => {
               species: parseInt(species),
               name: name.trim(),
               birthdate: unixTimestamp,
-              diseases: diseases.map(d => parseInt(d)),
+              diseases: diseases.map((d) => Number(d)),
               furColor: parseInt(furColor),
               imageHash: imageHash.trim().replace(/^https:\/\/[^/]+\/ipfs\//, '')
             });
@@ -150,7 +150,7 @@ const MintAnimal = () => {
                 parseInt(species),
                 name.trim(),
                 unixTimestamp,
-                diseases.map(d => parseInt(d)), // just in case
+                diseases.map((d) => Number(d)),
                 parseInt(furColor),
                 imageHash.trim().replace(/^https:\/\/[^/]+\/ipfs\//, '')
               )
@@ -217,16 +217,23 @@ const MintAnimal = () => {
             )}
           </select>
 
-          <label htmlFor="imageUpload" className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 inline-block mb-4 w-full text-center">
-            📷 Upload Animal Image
-          </label>
-          <input
-            id="imageUpload"
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            className="hidden"
-          />
+            <div className="flex flex-col items-center justify-center">
+              <label
+                htmlFor="imageUpload"
+                className="cursor-pointer bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-2xl shadow-lg hover:shadow-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 ease-in-out text-lg font-medium flex items-center gap-2 w-full justify-center"
+              >
+                <span role="img" aria-label="camera" className="text-xl">📷</span>
+                Upload Animal Image
+              </label>
+              <input
+                id="imageUpload"
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+            </div>
+
 
           {imagePreview && (
             <div className="my-4 text-center">

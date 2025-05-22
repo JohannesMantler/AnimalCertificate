@@ -19,8 +19,6 @@ import contract_abi from '../abis/AnimalCertificate.json';
 const ShowAll = () => {
   const dispatch = useDispatch();
   const contract_address = useSelector((state) => state.contract.address);
-  console.log("🚨 Contract address in ShowAll:", contract_address);
-
 
   const sortBy = useSelector((state) => state.sorter.sort_by);
   const sortDir = useSelector((state) => state.sorter.sort_dir);
@@ -39,19 +37,42 @@ const ShowAll = () => {
     watch: true,
   });
 
+  // DEBUG: log contract supply state
+  console.log('Contract supply isSuccess:', contract_supply.isSuccess);
+  console.log('Contract supply data:', contract_supply.data);
+
+  // Manual fallback for totalSupply fetch
+  useEffect(() => {
+    async function manualFetchSupply() {
+      if (!contract_supply.isSuccess && contract_address) {
+        try {
+          const supply = await readContract({
+            abi: contract_abi,
+            address: contract_address,
+            functionName: 'totalSupply',
+          });
+          console.log("Manual totalSupply call:", supply.toString());
+        } catch (error) {
+          console.error("Error fetching totalSupply manually:", error);
+        }
+      }
+    }
+    manualFetchSupply();
+  }, [contract_supply.isSuccess, contract_address]);
+
   const fetchAnimalsFromContract = async () => {
     if (!contract_supply.isSuccess || !contract_supply.data) {
       console.warn('Waiting for contract supply...');
       return;
     }
-  
+
     const supply = Number(contract_supply.data.toString());
     const twoMinutesAgo = Date.now() - 2 * 60 * 1000;
     if (lastAnimalUpdate >= twoMinutesAgo) return;
-  
+
     setLoading(true);
     const updatedAnimals = [...allAnimals];
-  
+
     for (let i = 0; i < supply; i++) {
       const exists = updatedAnimals.some(animal => animal.id === i);
       if (!exists) {
@@ -62,36 +83,31 @@ const ShowAll = () => {
             functionName: 'getAnimal',
             args: [i],
           });
-  
+
           const owner = await readContract({
             abi: contract_abi,
             address: contract_address,
             functionName: 'ownerOf',
             args: [i],
           });
-  
+
           const cleaned = {
             ...siftBigInt(rawAnimal),
             owner: siftBigInt(owner),
           };
-          console.log("✅ Cleaned animal data:", cleaned);
 
-  
           updatedAnimals.push(cleaned);
         } catch (err) {
           console.warn(`⚠️ Skipping token ID ${i}: getAnimal failed`, err.message);
         }
       }
     }
-  
+
     dispatch(mergeAnimals(updatedAnimals));
-    console.log("🚀 Merging animals to Redux:", updatedAnimals);
     setLoading(false);
   };
-  
 
   useEffect(() => {
-    console.log("🔢 totalSupply result:", contract_supply.data);
     if (contract_supply.isSuccess && contract_supply.data) {
       fetchAnimalsFromContract();
     }
@@ -107,8 +123,6 @@ const ShowAll = () => {
         includeMatches: true,
         threshold: 0.2,
       });
-
-      console.log("🔍 Animals before filtering/sorting:", unsortedAnimals);
 
       let filtered = unsortedAnimals;
       if (searchString) {

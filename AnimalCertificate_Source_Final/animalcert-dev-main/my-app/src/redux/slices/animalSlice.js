@@ -34,6 +34,7 @@ const animalSlice = createSlice({
             state.lastUpdateAnimal = Date.now();
         },
         mergeAnimals: (state, action) => {
+            console.log("🧬 Merging animals into Redux:", action.payload);
             state.animals = mergeArraysRemovingDuplicates(state.animals, action.payload);
             state.lastUpdateAnimal = Date.now();
         },

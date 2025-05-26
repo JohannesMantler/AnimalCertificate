@@ -75,6 +75,7 @@ const ShowAll = () => {
     const updatedAnimals = [...allAnimals];
 
     for (let i = 0; i < supply; i++) {
+      console.log("🔍 Fetching animal ID", i);
       const exists = updatedAnimals.some(animal => animal.id === i);
       if (!exists) {
         try {
@@ -84,6 +85,7 @@ const ShowAll = () => {
             functionName: 'getAnimal',
             args: [i],
           });
+          console.log("🐾 rawAnimal:", rawAnimal); // << ADD THIS
 
           const owner = await readContract({
             abi: contract_abi,
@@ -97,10 +99,12 @@ const ShowAll = () => {
             owner: siftBigInt(owner),
           };
 
+          console.log("✅ Cleaned animal:", cleaned);
           updatedAnimals.push(cleaned);
         } catch (err) {
           console.warn(`⚠️ Skipping token ID ${i}: getAnimal failed`, err.message);
         }
+
       }
     }
 

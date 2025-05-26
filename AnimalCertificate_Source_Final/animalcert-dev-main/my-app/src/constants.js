@@ -1,5 +1,3 @@
-import { BigNumber } from 'ethers';
-
 export const ANIMAL_COLORS = {
     0: 'Black',
     1: 'White',

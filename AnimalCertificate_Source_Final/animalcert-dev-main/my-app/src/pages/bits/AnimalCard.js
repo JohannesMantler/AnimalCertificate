@@ -19,7 +19,7 @@ const AnimalCard = ({ animal }) => {
         <span className="text-lg font-bold">
           Name: [
           <Link to={`/animals/${animal.id}`} className="underline">
-            {animal.breed}
+            {animal.name}
           </Link>
           ]
         </span>

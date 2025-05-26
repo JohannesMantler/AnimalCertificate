@@ -1,3 +1,5 @@
+import { BigNumber } from 'ethers';
+
 export const ANIMAL_COLORS = {
     0: 'Black',
     1: 'White',
@@ -58,15 +60,17 @@ export const validNode = (node) => (node && node.nodeType && node.nodeType === 1
 export const siftBigInt = (object) => {
   const keys = Object.keys(object);
   keys.forEach(key => {
-    if (typeof object[key] === 'bigint') {
-      // Convert bigint to number
-      object[key] = Number(object[key]);
-    } else if (Array.isArray(object[key])) {
-      // Handle array containing bigint
-      object[key] = object[key].map(value => typeof value === 'bigint' ? Number(value) : value);
+    const val = object[key];
+    if (typeof val === 'bigint' || (val?._isBigNumber)) {
+      object[key] = Number(val.toString());
+    } else if (Array.isArray(val)) {
+      object[key] = val.map(item =>
+        typeof item === 'bigint' || (item?._isBigNumber) ? Number(item.toString()) : item
+      );
     }
   });
   return object;
 };
+
 
 

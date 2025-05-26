@@ -8,10 +8,14 @@ const AnimalCard = ({ animal }) => {
       {/* Avatar */}
       <div className="row-span-4 col-span-1 flex items-center justify-center border-r border-white p-2">
         <img
-          src={AnimalMaps.ANIMAL_SPECIES_IMAGES[animal.species ?? 99]}
-          alt="Animal"
-          className="w-20 h-20 object-contain mx-auto rounded-full border-2 border-white"
-        />
+            src={
+              animal.imageHash
+                ? `https://gateway.pinata.cloud/ipfs/${animal.imageHash}`
+                : AnimalMaps.ANIMAL_SPECIES_IMAGES[animal.species ?? 99]
+            }
+            alt="Animal"
+            className="w-20 h-20 object-cover mx-auto rounded-full border-2 border-white"
+          />
       </div>
 
       {/* Title */}

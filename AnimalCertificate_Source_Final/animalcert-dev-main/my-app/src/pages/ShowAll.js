@@ -19,6 +19,7 @@ import contract_abi from '../abis/AnimalCertificate.json';
 const ShowAll = () => {
   const dispatch = useDispatch();
   const contract_address = useSelector((state) => state.contract.address);
+  console.log("Contract Address:", contract_address);
 
   const sortBy = useSelector((state) => state.sorter.sort_by);
   const sortDir = useSelector((state) => state.sorter.sort_dir);

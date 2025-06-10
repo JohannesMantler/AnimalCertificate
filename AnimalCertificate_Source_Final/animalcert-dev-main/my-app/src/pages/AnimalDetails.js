@@ -16,13 +16,6 @@ const AnimalDetails = () => {
     const contract_address = useSelector((state) => state.contract.address);
     const account = useAccount();
 
-    const [imageUploading, setImageUploading] = useState(false);
-    const [imagePreview, setImagePreview] = useState(null);
-    const [imageHash, setImageHash] = useState("");
-
-   const PINATA_JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI4YzdmZmQyMS1iOTRhLTRhOWUtODc4Yi1iMTY0MjBhOTZlZGQiLCJlbWFpbCI6ImlmMjNiMTc0QHRlY2huaWt1bS13aWVuLmF0IiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6IjUxYTA3ODQxMGU1NjVmZTg0M2E5Iiwic2NvcGVkS2V5U2VjcmV0IjoiMzcyMzZmNDRlNTAxNGUyNTZkMGJiMmEzOTkyYzQ5ODExN2RmNzIxMDZmZGNkMTRmNzFmNDQ0MmQzMWU3ZWIxZSIsImV4cCI6MTc3NTQ3OTU2Nn0.LsynbOrbkACZZsnc4zd2ztSGb_Xxdh1Lym_go61P-DU';
-
-
     const single_read_animal = useContractRead({
         abi: contract_abi,
         address: contract_address,
@@ -44,55 +37,6 @@ const AnimalDetails = () => {
     const animal = single_read_animal.data;
     const owner = single_ownerOf_animal.data;
 
-    const handleImageUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        setImageUploading(true);
-        try {
-            const formData = new FormData();
-            formData.append("file", file);
-
-            const res = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${PINATA_JWT}`
-                },
-                body: formData
-            });
-
-            const data = await res.json();
-            if (!data?.IpfsHash) throw new Error("No IPFS hash returned.");
-
-            const ipfsHash = data.IpfsHash;
-            const imageUrl = `https://gateway.pinata.cloud/ipfs/${ipfsHash}`;
-
-            setImageHash(ipfsHash);
-            setImagePreview(imageUrl);
-        } catch (err) {
-            console.error("❌ Image upload failed:", err);
-        } finally {
-            setImageUploading(false);
-        }
-    };
-
-    const updateAnimalImage = async () => {
-        try {
-            const config = await prepareWriteContract({
-                address: contract_address,
-                abi: contract_abi,
-                functionName: 'updateImageHash',
-                args: [id, imageHash]
-            });
-
-            const tx = await writeContract(config);
-            console.log("✅ Image updated:", tx);
-            single_read_animal.refetch();
-        } catch (err) {
-            console.error("❌ Failed to update image:", err);
-        }
-    };
-
     const abort_pregnancy = async (id) => {
         const config = await prepareWriteContract({
             address: contract_address,
@@ -101,7 +45,7 @@ const AnimalDetails = () => {
             args: [id]
         });
         try {
-            await writeContract(config);
+            const transaction = await writeContract(config);
             return true;
         } catch (error) {
             console.log(error.message);
@@ -117,7 +61,7 @@ const AnimalDetails = () => {
             args: [id, disease]
         });
         try {
-            await writeContract(config);
+            const transaction = await writeContract(config);
             return true;
         } catch (error) {
             console.log(error.message);
@@ -133,7 +77,7 @@ const AnimalDetails = () => {
             args: [id, disease]
         });
         try {
-            await writeContract(config);
+            const transaction = await writeContract(config);
             return true;
         } catch (error) {
             console.log(error.message);
@@ -147,7 +91,7 @@ const AnimalDetails = () => {
         const cancelButtonRef = useRef(null);
 
         useEffect(() => {
-            if (isModalOpen) cancelButtonRef.current?.focus();
+            if (isModalOpen) cancelButtonRef.current.focus();
         }, [isModalOpen]);
 
         const handleConfirm = () => {
@@ -159,11 +103,11 @@ const AnimalDetails = () => {
             const [possibleDiseases, setPossibleDiseases] = useState([]);
 
             useEffect(() => {
-                const excluded = animal.diseases.concat(99).map(Number);
-                const filtered = Object.fromEntries(
-                    Object.entries(ANIMAL_DISEASES).filter(([key]) => !excluded.includes(Number(key)))
+                const excludedKeys = animal.diseases.concat(99).map(Number);
+                const filteredDiseases = Object.fromEntries(
+                    Object.entries(ANIMAL_DISEASES).filter(([key]) => !excludedKeys.includes(Number(key)))
                 );
-                setPossibleDiseases(filtered);
+                setPossibleDiseases(filteredDiseases);
             }, [animal.diseases]);
 
             return (
@@ -207,7 +151,7 @@ const AnimalDetails = () => {
         const cancelButtonRef = useRef(null);
 
         useEffect(() => {
-            if (isModalOpen && animal?.diseases.length > 0) {
+            if (isModalOpen && animal && animal.diseases.length > 0) {
                 setSelectedDisease(Number(animal.diseases[0]));
                 cancelButtonRef.current?.focus();
             }
@@ -215,9 +159,12 @@ const AnimalDetails = () => {
 
         const handleConfirm = () => {
             setModalOpen(false);
-            if (selectedDisease != null) {
+            if (selectedDisease != null && animal) {
                 remove_Disease(animal.id, selectedDisease)
-                    .then((r) => r && single_read_animal.refetch());
+                    .then((r) => {
+                        if (!r) alert("Failed to remove disease.");
+                        else single_read_animal.refetch();
+                    });
             }
         };
 
@@ -229,6 +176,7 @@ const AnimalDetails = () => {
                 >
                     Remove Disease
                 </button>
+
                 {isModalOpen && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                         <div className="bg-white p-6 rounded">

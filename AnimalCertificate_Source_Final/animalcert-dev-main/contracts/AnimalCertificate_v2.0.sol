@@ -104,6 +104,17 @@ contract AnimalCertificate is ERC721 {
         return animals.length;
     }
 
+    function updateImageHash(uint256 _tokenId, string memory _newImageHash) public {
+    require(ownerOf(_tokenId) == msg.sender, "Not the owner");
+    require(bytes(_newImageHash).length > 0, "Image hash cannot be empty");
+
+    Animal storage animal = animals[_tokenId];
+    require(animal.dateOfDeath == 0, "Animal is deceased");
+
+    animal.imageHash = _newImageHash;
+}
+
+
     function addDisease(uint256 _tokenId, uint8 _disease) public {
         require(ownerOf(_tokenId) == msg.sender, "Not the owner");
         require(_disease <= uint8(Disease.Atopy), "Invalid disease");

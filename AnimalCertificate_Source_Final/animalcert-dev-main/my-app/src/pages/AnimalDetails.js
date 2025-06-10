@@ -20,7 +20,8 @@ const AnimalDetails = () => {
     const [imagePreview, setImagePreview] = useState(null);
     const [imageHash, setImageHash] = useState("");
 
-    const PINATA_JWT = "YOUR_PINATA_JWT_HERE"; // Store in env file for production
+   const PINATA_JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI4YzdmZmQyMS1iOTRhLTRhOWUtODc4Yi1iMTY0MjBhOTZlZGQiLCJlbWFpbCI6ImlmMjNiMTc0QHRlY2huaWt1bS13aWVuLmF0IiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6IjUxYTA3ODQxMGU1NjVmZTg0M2E5Iiwic2NvcGVkS2V5U2VjcmV0IjoiMzcyMzZmNDRlNTAxNGUyNTZkMGJiMmEzOTkyYzQ5ODExN2RmNzIxMDZmZGNkMTRmNzFmNDQ0MmQzMWU3ZWIxZSIsImV4cCI6MTc3NTQ3OTU2Nn0.LsynbOrbkACZZsnc4zd2ztSGb_Xxdh1Lym_go61P-DU';
+
 
     const single_read_animal = useContractRead({
         abi: contract_abi,

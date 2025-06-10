@@ -322,19 +322,25 @@ const AnimalDetails = () => {
                             <div>Mother {animal.mother}</div>
                             <div>Father {animal.father}</div>
                         </div>
-                        {animal.dateOfDeath <= 0 && animal.diseases.length < Object.keys(AnimalMaps.ANIMAL_DISEASES).length && account.address && account.address === owner && (
-                            <div className="fixed bottom-0 left-0 mb-4 ml-4">
-                                <AddDiseaseButton />
-                                <RemoveDiseaseButton />
+                        {animal.dateOfDeath <= 0 && account.address === owner && (
+                            <div className="fixed bottom-0 left-0 right-0 p-4 flex justify-between items-end bg-white bg-opacity-80 border-t border-gray-300">
+                                <div className="flex gap-2">
+                                    {animal.diseases.length < Object.keys(AnimalMaps.ANIMAL_DISEASES).length && (
+                                        <>
+                                            <AddDiseaseButton />
+                                            <RemoveDiseaseButton />
+                                        </>
+                                    )}
+                                </div>
+                                <div className="flex gap-2">
+                                    {animal.pregnant === false && animal.gender === 0 && <ConfirmPregnancyButton animal={animal} />}
+                                    {animal.pregnant === true && <BirthButton animal={animal} />}
+                                    {animal.pregnant === true && <AbortPregnancyButton />}
+                                    <DeclareDeathButton animal={animal} />
+                                </div>
                             </div>
-                        )}
-                        <div className="fixed bottom-0 right-0 mb-4 flex flex-col gap-1 items-end">
-                            {animal.pregnant === false && animal.dateOfDeath <= 0 && animal.gender === 0 && account.address === owner && <ConfirmPregnancyButton animal={animal} />}
-                            {animal.pregnant === true && account.address === owner && <BirthButton animal={animal} />}
-                            {animal.pregnant === true && account.address === owner && <AbortPregnancyButton />}
-                            {animal.dateOfDeath <= 0 && account.address === owner && <DeclareDeathButton animal={animal} />}
-                        </div>
-                    </div>
+                    )}
+
                 ) : (
                     <>
                         An error occurred while loading Passport number <b>"{id}"</b>:<br />

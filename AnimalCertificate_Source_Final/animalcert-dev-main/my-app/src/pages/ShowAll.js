@@ -94,10 +94,14 @@ const ShowAll = () => {
             args: [i],
           });
 
-          const cleaned = {
-            ...siftBigInt(rawAnimal),
-            owner: siftBigInt(owner),
+          export const siftBigInt = (obj) => {
+            const result = {};
+            for (const [key, value] of Object.entries(obj)) {
+              result[key] = typeof value === 'bigint' ? Number(value) : value;
+            }
+            return result;
           };
+
 
           console.log("✅ Cleaned animal:", cleaned);
           updatedAnimals.push(cleaned);

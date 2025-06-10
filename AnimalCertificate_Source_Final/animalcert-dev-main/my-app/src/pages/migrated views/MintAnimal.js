@@ -23,6 +23,7 @@ const MintAnimal = () => {
   const [birthdate, setBirthdate] = useState('');
   const [imageHash, setImageHash] = useState('');
   const [imagePreview, setImagePreview] = useState(null);
+  const [showMintNotice, setShowMintNotice] = useState(false);
 
   const handleSelectChange = (event) => {
     setDiseases(Array.from(event.target.selectedOptions, option => parseInt(option.value)));
@@ -94,6 +95,8 @@ const MintAnimal = () => {
       dispatch(setText('Animal minted successfully!'));
       dispatch(setLink(<a href={url} target="_blank" rel="noopener noreferrer">{transaction.hash}</a>));
   
+      setShowMintNotice(true);
+
     } catch (error) {
       console.error("❌ Minting failed:", error);
       dispatch(setColor('red'));
@@ -194,6 +197,7 @@ const MintAnimal = () => {
             value={birthdate}
             onChange={(e) => setBirthdate(e.target.value)}
             required
+            max={new Date().toISOString().split("T")[0]}
             className='my-5 form-control bg-transparent text-white text-sm rounded-lg focus:border-sky-300 block w-full p-2.5 border-2 border-white placeholder-white placeholder-opacity-70'
           />
           <select
@@ -255,6 +259,23 @@ const MintAnimal = () => {
           <p className="text-lg text-center text-white">Check your wallet for confirmation...</p>
         </div>
       )}
+      {showMintNotice && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white rounded-lg p-6 max-w-md text-center shadow-xl">
+      <h2 className="text-xl font-semibold mb-4 text-neutral-800">⏳ Please Wait</h2>
+      <p className="text-neutral-700">
+        For security reasons, it can take up to 2 minutes before the token is visible.
+      </p>
+      <button
+        onClick={() => setShowMintNotice(false)}
+        className="mt-6 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+      >
+        OK
+      </button>
+    </div>
+  </div>
+)}
+
     </main>
   );
 };

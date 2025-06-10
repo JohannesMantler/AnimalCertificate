@@ -293,65 +293,69 @@ const AnimalDetails = () => {
         );
       }
 
-    return (
-        <main className="p-4 rounded-lg w-full milky-glass border-2 border-solid border-neutral-200">
-            {(single_read_animal.isLoading || single_ownerOf_animal.isLoading) ? (
-                <>loading...</>
-            ) : (
-                !single_read_animal.isError && !single_ownerOf_animal.isError && animal && owner ? (
-                    <div className="relative">
-                        <div className="flex flex-col items-center">
-                            <img src={AnimalMaps.ANIMAL_SPECIES_IMAGES[animal.species ?? 99n]} className="rounded-full border-white border-4 w-32 h-32 mx-auto mt-6 blue-glow-element" />
-                            <h2 className="text-3xl font-bold mt-4">Animal Name: {animal.name}</h2>
-                            <div className="text-xl mt-1">Owner: <Link to={`/owner/${owner}`} className="underline"><EthAddress>{owner}</EthAddress></Link></div>
-                            <div className="text-2xl">{animal.dateOfDeath > 0 ? <span className="text-7xl">❌</span> : ""}</div>
-                            <div className="text-sm mt-2">
-                                <span>Species: {AnimalMaps.ANIMAL_SPECIES[animal.species ?? 99n]}</span>
-                                <span className="mx-2">|</span>
-                                <span>Gender: {AnimalMaps.ANIMAL_GENDERS[animal.gender ?? 99n]}</span>
-                                <span className="mx-2">|</span>
-                                <span>Birthday: {new Date(Number(animal.dateOfBirth * 1000n)).toLocaleDateString('de-AT')}</span>
-                            </div>
-                            <div className="text-sm mt-1">
-                                <span>Fur Color: {AnimalMaps.ANIMAL_COLORS[animal.furColor ?? 99n]}</span>
-                                <span className="mx-2">|</span>
-                                <span>Diseases: {animal.diseases.length > 0n ? animal.diseases.map((disease) => AnimalMaps.ANIMAL_DISEASES[Number(disease)]).join(", ") : "no known diseases"}</span>
-                            </div>
-                            <h3 className="text-3xl font-bold mt-8">Parents:</h3>
-                            <Link to={`/ancestry/${Number(animal.id)}`} className="underline">Ancestral tree</Link>
-                            <div>Mother {animal.mother}</div>
-                            <div>Father {animal.father}</div>
-                        </div>
-                        {animal.dateOfDeath <= 0 && account.address === owner && (
-                            <div className="fixed bottom-0 left-0 right-0 p-4 flex justify-between items-end bg-white bg-opacity-80 border-t border-gray-300">
-                                <div className="flex gap-2">
-                                    {animal.diseases.length < Object.keys(AnimalMaps.ANIMAL_DISEASES).length && (
-                                        <>
-                                            <AddDiseaseButton />
-                                            <RemoveDiseaseButton />
-                                        </>
-                                    )}
-                                </div>
-                                <div className="flex gap-2">
-                                    {animal.pregnant === false && animal.gender === 0 && <ConfirmPregnancyButton animal={animal} />}
-                                    {animal.pregnant === true && <BirthButton animal={animal} />}
-                                    {animal.pregnant === true && <AbortPregnancyButton />}
-                                    <DeclareDeathButton animal={animal} />
-                                </div>
-                            </div>
-                    )}
+  // ... (imports and component setup remain unchanged)
 
-                ) : (
-                    <>
-                        An error occurred while loading Passport number <b>"{id}"</b>:<br />
-                        Status: animal: <i>{single_read_animal.status}</i>; ownerOf: <i>{single_ownerOf_animal.status}</i><br />
-                        {single_read_animal.isError && <code>{single_read_animal.error.toString()}</code>}
-                        {single_ownerOf_animal.isError && <code>{single_ownerOf_animal.error.toString()}</code>}
-                    </>
-                )
-            )}
-        </main>
-    );
+return (
+    <main className="p-4 rounded-lg w-full milky-glass border-2 border-solid border-neutral-200">
+        {(single_read_animal.isLoading || single_ownerOf_animal.isLoading) ? (
+            <>loading...</>
+        ) : (
+            (!single_read_animal.isError && !single_ownerOf_animal.isError && animal && owner) ? (
+                <div className="relative">
+                    <div className="flex flex-col items-center">
+                        <img src={AnimalMaps.ANIMAL_SPECIES_IMAGES[animal.species ?? 99n]} className="rounded-full border-white border-4 w-32 h-32 mx-auto mt-6 blue-glow-element" />
+                        <h2 className="text-3xl font-bold mt-4">Animal Name: {animal.name}</h2>
+                        <div className="text-xl mt-1">Owner: <Link to={`/owner/${owner}`} className="underline"><EthAddress>{owner}</EthAddress></Link></div>
+                        <div className="text-2xl">{animal.dateOfDeath > 0 ? <span className="text-7xl">❌</span> : ""}</div>
+                        <div className="text-sm mt-2">
+                            <span>Species: {AnimalMaps.ANIMAL_SPECIES[animal.species ?? 99n]}</span>
+                            <span className="mx-2">|</span>
+                            <span>Gender: {AnimalMaps.ANIMAL_GENDERS[animal.gender ?? 99n]}</span>
+                            <span className="mx-2">|</span>
+                            <span>Birthday: {new Date(Number(animal.dateOfBirth * 1000n)).toLocaleDateString('de-AT')}</span>
+                        </div>
+                        <div className="text-sm mt-1">
+                            <span>Fur Color: {AnimalMaps.ANIMAL_COLORS[animal.furColor ?? 99n]}</span>
+                            <span className="mx-2">|</span>
+                            <span>Diseases: {animal.diseases.length > 0 ? animal.diseases.map((disease) => AnimalMaps.ANIMAL_DISEASES[Number(disease)]).join(", ") : "no known diseases"}</span>
+                        </div>
+                        <h3 className="text-3xl font-bold mt-8">Parents:</h3>
+                        <Link to={`/ancestry/${Number(animal.id)}`} className="underline">Ancestral tree</Link>
+                        <div>Mother {animal.mother}</div>
+                        <div>Father {animal.father}</div>
+                    </div>
+                    {animal.dateOfDeath <= 0 && account.address === owner && (
+                        <div className="fixed bottom-0 left-0 right-0 p-4 flex justify-between items-end bg-white bg-opacity-80 border-t border-gray-300">
+                            <div className="flex gap-2">
+                                {animal.diseases.length < Object.keys(AnimalMaps.ANIMAL_DISEASES).length && (
+                                    <>
+                                        <AddDiseaseButton />
+                                        <RemoveDiseaseButton />
+                                    </>
+                                )}
+                            </div>
+                            <div className="flex gap-2">
+                                {animal.pregnant === false && animal.gender === 0 && <ConfirmPregnancyButton animal={animal} />}
+                                {animal.pregnant === true && <BirthButton animal={animal} />}
+                                {animal.pregnant === true && <AbortPregnancyButton />}
+                                <DeclareDeathButton animal={animal} />
+                            </div>
+                        </div>
+                    )}
+                </div>
+            ) : (
+                <div className="text-white">
+                    <p>An error occurred while loading Passport number <b>"{id}"</b>:</p>
+                    <p>Status: animal: <i>{single_read_animal.status}</i>; ownerOf: <i>{single_ownerOf_animal.status}</i></p>
+                    {single_read_animal.isError && <code>{single_read_animal.error.toString()}</code>}
+                    {single_ownerOf_animal.isError && <code>{single_ownerOf_animal.error.toString()}</code>}
+                </div>
+            )
+        )}
+    </main>
+);
+
 };
+
 
 export default AnimalDetails;

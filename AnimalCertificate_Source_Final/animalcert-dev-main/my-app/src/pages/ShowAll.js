@@ -16,6 +16,14 @@ import { readContract } from '@wagmi/core';
 import { useContractRead } from 'wagmi';
 import contract_abi from '../abis/AnimalCertificate.json';
 
+export const siftBigInt = (obj) => {
+  const result = {};
+  for (const [key, value] of Object.entries(obj)) {
+    result[key] = typeof value === 'bigint' ? Number(value) : value;
+  }
+  return result;
+};
+
 const ShowAll = () => {
   const dispatch = useDispatch();
   const contract_address = useSelector((state) => state.contract.address);
@@ -61,6 +69,7 @@ const ShowAll = () => {
     manualFetchSupply();
   }, [contract_supply.isSuccess, contract_address]);
 
+
   const fetchAnimalsFromContract = async () => {
     if (!contract_supply.isSuccess || !contract_supply.data) {
       console.warn('Waiting for contract supply...');
@@ -94,13 +103,7 @@ const ShowAll = () => {
             args: [i],
           });
 
-          export const siftBigInt = (obj) => {
-            const result = {};
-            for (const [key, value] of Object.entries(obj)) {
-              result[key] = typeof value === 'bigint' ? Number(value) : value;
-            }
-            return result;
-          };
+          const cleaned = siftBigInt(rawAnimal);
 
 
           console.log("✅ Cleaned animal:", cleaned);

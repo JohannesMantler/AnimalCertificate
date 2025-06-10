@@ -56,7 +56,7 @@ const DeclareDeathButton = ({animal}) => {
     return (
         <div>
             <button
-                className="bg-black hover:bg-gray-800 text-white font-bold py-2 px-4 rounded"
+                className="bg-blue-900 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded"
                 onClick={handleDeathClick}
             >
                 Declare death

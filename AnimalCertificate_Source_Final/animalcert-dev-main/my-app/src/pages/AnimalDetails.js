@@ -180,7 +180,7 @@ const AnimalDetails = () => {
         return (
             <div>
                 <button
-                    className="bg-[#9a3412] hover:bg-gray-800 text-white font-bold py-2 px-4 rounded"
+                    className="bg-blue-900 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded"
                     onClick={handleAddDisease}
                 >
                     Add Disease
@@ -240,7 +240,7 @@ const AnimalDetails = () => {
         return (
             <div>
                 <button
-                    className="bg-red-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded ml-2"
+                    className="bg-blue-900 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded ml-2"
                     onClick={handleOpen}
                 >
                     Remove Disease
@@ -293,7 +293,6 @@ const AnimalDetails = () => {
         );
       }
 
-  // ... (imports and component setup remain unchanged)
 
 return (
     <main className="p-4 rounded-lg w-full milky-glass border-2 border-solid border-neutral-200">
@@ -303,7 +302,16 @@ return (
             (!single_read_animal.isError && !single_ownerOf_animal.isError && animal && owner) ? (
                 <div className="relative">
                     <div className="flex flex-col items-center">
-                        <img src={AnimalMaps.ANIMAL_SPECIES_IMAGES[animal.species ?? 99n]} className="rounded-full border-white border-4 w-32 h-32 mx-auto mt-6 blue-glow-element" />
+                        <img
+                            src={
+                                animal.imageHash?.startsWith('http')
+                                ? animal.imageHash
+                                : `https://gateway.pinata.cloud/ipfs/${animal.imageHash}`
+                                    ?? AnimalMaps.ANIMAL_SPECIES_IMAGES[animal.species ?? 99n]
+                            }
+                            alt="Animal"
+                            className="rounded-full border-white border-4 w-32 h-32 mx-auto mt-6 blue-glow-element"
+                            />
                         <h2 className="text-3xl font-bold mt-4">Animal Name: {animal.name}</h2>
                         <div className="text-xl mt-1">Owner: <Link to={`/owner/${owner}`} className="underline"><EthAddress>{owner}</EthAddress></Link></div>
                         <div className="text-2xl">{animal.dateOfDeath > 0 ? <span className="text-7xl">❌</span> : ""}</div>
@@ -325,7 +333,7 @@ return (
                         <div>Father {animal.father}</div>
                     </div>
                     {animal.dateOfDeath <= 0 && account.address === owner && (
-                        <div className="fixed bottom-0 left-0 right-0 p-4 flex justify-between items-end bg-white bg-opacity-80 border-t border-gray-300">
+                        <div className="fixed bottom-0 left-0 right-0 p-4 flex justify-between items-end bg-transparent">
                             <div className="flex gap-2">
                                 {animal.diseases.length < Object.keys(AnimalMaps.ANIMAL_DISEASES).length && (
                                     <>

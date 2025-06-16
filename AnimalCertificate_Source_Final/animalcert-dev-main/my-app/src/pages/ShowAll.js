@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AnimalCard from './bits/AnimalCard';
 import ReusableDropdown from './bits/ReusableDropdown';
-
+import { clearAnimals } from '../redux/slices/animalSlice';
 import { useSelector, useDispatch } from 'react-redux';
 import { mergeAnimals } from '../redux/slices/animalSlice';
 import {

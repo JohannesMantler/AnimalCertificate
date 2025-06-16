@@ -119,6 +119,10 @@ const ShowAll = () => {
   }, [contract_supply.data]);
 
   useEffect(() => {
+  dispatch(clearAnimals());
+}, [contract_address]);
+
+  useEffect(() => {
     try {
       // Deep clone to avoid mutations on Redux state
       const unsortedAnimals = JSON.parse(JSON.stringify(allAnimals));

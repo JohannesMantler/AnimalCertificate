@@ -5,7 +5,7 @@ import CONTRACT_ABI from '../../abis/AnimalCertificate.json';
 const contractSlice = createSlice({
     name: 'contract',
     initialState: {
-        abi: CONTRACT_ABI.abi,
+        abi: CONTRACT_ABI,
         address: '0xd9145CCE52D386f254917e481eB44e9943F39138',
     },
     reducers: {

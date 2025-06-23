@@ -6,7 +6,7 @@ const contractSlice = createSlice({
     name: 'contract',
     initialState: {
         abi: CONTRACT_ABI,
-        address: '0xd1E3a3f13766D234FC29F495B848ade7081d2728',
+        address: '0x36Ee3829CCFeFcF4044fE8ea75BbC7b86562FC23',
     },
     reducers: {
         setAbi: (state, action) => {

@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import AnimalCard from './bits/AnimalCard';
 import ReusableDropdown from './bits/ReusableDropdown';
-import { clearAnimals } from '../redux/slices/animalSlice';
+import { clearAnimals, mergeAnimals } from '../redux/slices/animalSlice';
 import { useSelector, useDispatch } from 'react-redux';
-import { mergeAnimals } from '../redux/slices/animalSlice';
 import {
   setSortBy,
   setSortDirection,
@@ -19,7 +17,7 @@ import contract_abi from '../abis/AnimalCertificate.json';
 const ShowAll = () => {
   const dispatch = useDispatch();
   const contract_address = useSelector((state) => state.contract.address);
-  console.log("Contract Address:", contract_address);
+  console.log("📡 Contract Address:", contract_address);
 
   const sortBy = useSelector((state) => state.sorter.sort_by);
   const sortDir = useSelector((state) => state.sorter.sort_dir);
@@ -38,11 +36,9 @@ const ShowAll = () => {
     watch: true,
   });
 
-  // DEBUG: log contract supply state
-  console.log('Contract supply isSuccess:', contract_supply.isSuccess);
-  console.log('Contract supply data:', contract_supply.data);
+  console.log('🔢 Contract supply isSuccess:', contract_supply.isSuccess);
+  console.log('📦 Contract supply data:', contract_supply.data);
 
-  // Manual fallback for totalSupply fetch
   useEffect(() => {
     async function manualFetchSupply() {
       if (!contract_supply.isSuccess && contract_address) {
@@ -52,9 +48,9 @@ const ShowAll = () => {
             address: contract_address,
             functionName: 'totalSupply',
           });
-          console.log("Manual totalSupply call:", supply.toString());
+          console.log("🧮 Manual totalSupply call:", supply.toString());
         } catch (error) {
-          console.error("Error fetching totalSupply manually:", error);
+          console.error("❌ Error fetching totalSupply manually:", error);
         }
       }
     }
@@ -63,11 +59,12 @@ const ShowAll = () => {
 
   const fetchAnimalsFromContract = async () => {
     if (!contract_supply.isSuccess || !contract_supply.data) {
-      console.warn('Waiting for contract supply...');
+      console.warn('⏳ Waiting for contract supply...');
       return;
     }
 
     const supply = Number(contract_supply.data.toString());
+    console.log("🐢 totalSupply reported:", supply);
     const twoMinutesAgo = Date.now() - 2 * 60 * 1000;
     if (lastAnimalUpdate >= twoMinutesAgo) return;
 
@@ -75,7 +72,7 @@ const ShowAll = () => {
     const updatedAnimals = [...allAnimals];
 
     for (let i = 0; i < supply; i++) {
-      console.log("🔍 Fetching animal ID", i);
+      console.log("🔍 Checking animal ID", i);
       const exists = updatedAnimals.some(animal => animal.id === i);
       if (!exists) {
         try {
@@ -85,7 +82,7 @@ const ShowAll = () => {
             functionName: 'getAnimal',
             args: [i],
           });
-          console.log("🐾 rawAnimal:", rawAnimal); // << ADD THIS
+          console.log("🐾 rawAnimal:", i, rawAnimal);
 
           const owner = await readContract({
             abi: contract_abi,
@@ -93,6 +90,7 @@ const ShowAll = () => {
             functionName: 'ownerOf',
             args: [i],
           });
+          console.log("👤 ownerOf:", i, owner);
 
           const cleaned = {
             ...siftBigInt(rawAnimal),
@@ -102,12 +100,14 @@ const ShowAll = () => {
           console.log("✅ Cleaned animal:", cleaned);
           updatedAnimals.push(cleaned);
         } catch (err) {
-          console.warn(`⚠️ Skipping token ID ${i}: getAnimal failed`, err.message);
+          console.warn(`⚠️ Skipping token ID ${i}: getAnimal or ownerOf failed`, err);
         }
-
+      } else {
+        console.log(`⏩ Skipping ID ${i}, already exists in local state`);
       }
     }
 
+    console.log("📦 Dispatching animals to Redux:", updatedAnimals);
     dispatch(mergeAnimals(updatedAnimals));
     setLoading(false);
   };
@@ -119,13 +119,20 @@ const ShowAll = () => {
   }, [contract_supply.data]);
 
   useEffect(() => {
-  dispatch(clearAnimals());
-}, [contract_address]);
+    console.log("🔄 Clearing animals because contract address changed");
+    dispatch(clearAnimals());
+  }, [contract_address]);
 
   useEffect(() => {
     try {
-      // Deep clone to avoid mutations on Redux state
       const unsortedAnimals = JSON.parse(JSON.stringify(allAnimals));
+
+      console.log("🔠 Sorting animals:", {
+        sortBy,
+        sortDir,
+        searchString,
+        total: unsortedAnimals.length,
+      });
 
       const fuse = new Fuse(unsortedAnimals, {
         keys: ['name', 'id'],
@@ -147,7 +154,7 @@ const ShowAll = () => {
       if (!sortDir) sorted.reverse();
       setSortedAnimals(sorted);
     } catch (error) {
-      console.error("Sort/Filter error:", error);
+      console.error("❌ Sort/Filter error:", error);
       setSortedAnimals([]);
     }
   }, [allAnimals, sortBy, sortDir, searchString]);
@@ -214,7 +221,9 @@ const ShowAll = () => {
 
         {!loading && sortedAnimals.length > 0 ? (
           sortedAnimals.map((animal, index) => (
-            <AnimalCard key={index} animal={animal} />
+            <pre key={index} className="text-xs text-white bg-gray-900 p-2 rounded overflow-x-auto">
+              {JSON.stringify(animal, null, 2)}
+            </pre>
           ))
         ) : (
           <li className="text-white text-center text-lg italic col-span-full">

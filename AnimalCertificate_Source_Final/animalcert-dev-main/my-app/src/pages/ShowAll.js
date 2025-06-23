@@ -13,6 +13,8 @@ import { siftBigInt } from '../constants';
 import { readContract } from '@wagmi/core';
 import { useContractRead } from 'wagmi';
 import contract_abi from '../abis/AnimalCertificate.json';
+import AnimalCard from './bits/AnimalCard';
+
 
 const ShowAll = () => {
   const dispatch = useDispatch();

@@ -301,7 +301,15 @@ const AnimalDetails = () => {
                 !single_read_animal.isError && !single_ownerOf_animal.isError && animal && owner ? (
                     <div className="relative">
                         <div className="flex flex-col items-center">
-                            <img src={AnimalMaps.ANIMAL_SPECIES_IMAGES[animal.species ?? 99n]} className="rounded-full border-white border-4 w-32 h-32 mx-auto mt-6 blue-glow-element" />
+                            <img
+                                src={
+                                    animal.imageHash
+                                    ? `https://gateway.pinata.cloud/ipfs/${animal.imageHash}`
+                                    : AnimalMaps.ANIMAL_SPECIES_IMAGES[animal.species ?? 99n]
+                                }
+                                alt="Animal"
+                                className="rounded-full border-white border-4 w-32 h-32 mx-auto mt-6 blue-glow-element"
+                                />
                             <h2 className="text-3xl font-bold mt-4">Animal Name: {animal.name}</h2>
                             <div className="text-xl mt-1">Owner: <Link to={`/owner/${owner}`} className="underline"><EthAddress>{owner}</EthAddress></Link></div>
                             <div className="text-2xl">{animal.dateOfDeath > 0 ? <span className="text-7xl">❌</span> : ""}</div>

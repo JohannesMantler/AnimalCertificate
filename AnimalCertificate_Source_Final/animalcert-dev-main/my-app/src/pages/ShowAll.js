@@ -217,9 +217,7 @@ const ShowAll = () => {
 
         {!loading && sortedAnimals.length > 0 ? (
           sortedAnimals.map((animal, index) => (
-            <pre key={index} className="text-xs text-white bg-gray-900 p-2 rounded overflow-x-auto">
-              {JSON.stringify(animal, null, 2)}
-            </pre>
+            <AnimalCard key={index} animal={animal} />
           ))
         ) : (
           <li className="text-white text-center text-lg italic col-span-full">

@@ -23,6 +23,8 @@ const MintAnimal = () => {
   const [birthdate, setBirthdate] = useState('');
   const [imageHash, setImageHash] = useState('');
   const [imagePreview, setImagePreview] = useState(null);
+  const [showSecurityMessage, setShowSecurityMessage] = useState(false);
+
 
   const handleSelectChange = (event) => {
     setDiseases(Array.from(event.target.selectedOptions, option => parseInt(option.value)));
@@ -93,6 +95,7 @@ const MintAnimal = () => {
       dispatch(setCountdown(5000));
       dispatch(setText('Animal minted successfully!'));
       dispatch(setLink(<a href={url} target="_blank" rel="noopener noreferrer">{transaction.hash}</a>));
+      setShowSecurityMessage(true);
   
     } catch (error) {
       console.error("❌ Minting failed:", error);
@@ -255,6 +258,21 @@ const MintAnimal = () => {
           <p className="text-lg text-center text-white">Check your wallet for confirmation...</p>
         </div>
       )}
+      {showSecurityMessage && (
+  <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+    <div className="bg-white text-black p-6 rounded-xl shadow-lg max-w-sm w-full text-center">
+      <h2 className="text-xl font-semibold mb-4">Please Note</h2>
+      <p>For security reasons, it takes up to 2 minutes before the minted token is shown.</p>
+      <button
+        onClick={() => setShowSecurityMessage(false)}
+        className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+      >
+        OK
+      </button>
+    </div>
+  </div>
+)}
+
     </main>
   );
 };

@@ -118,10 +118,6 @@ const ShowAll = () => {
     }
   }, [contract_supply.data]);
 
-  useEffect(() => {
-    console.log("🔄 Clearing animals because contract address changed");
-    dispatch(clearAnimals());
-  }, [contract_address]);
 
   useEffect(() => {
     try {

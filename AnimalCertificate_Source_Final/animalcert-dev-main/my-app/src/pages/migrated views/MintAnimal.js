@@ -197,6 +197,7 @@ const MintAnimal = () => {
             value={birthdate}
             onChange={(e) => setBirthdate(e.target.value)}
             required
+            max={new Date().toISOString().split("T")[0]}
             className='my-5 form-control bg-transparent text-white text-sm rounded-lg focus:border-sky-300 block w-full p-2.5 border-2 border-white placeholder-white placeholder-opacity-70'
           />
           <select

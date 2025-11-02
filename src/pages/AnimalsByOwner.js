@@ -1,85 +1,86 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from "react-router-dom";
-import AnimalCard from './bits/AnimalCard';
-import EthAddress from './bits/EthAddress';
-
 import { useSelector } from 'react-redux';
 import { readContract } from '@wagmi/core';
 import { useContractRead } from 'wagmi';
+import { getAddress, isAddress } from 'viem';
+import AnimalCard from './bits/AnimalCard';
+import EthAddress from './bits/EthAddress';
 
 const AnimalsByOwner = () => {
   const [allAnimals, setAllAnimals] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const { id } = useParams();
-  const abi = useSelector((state) => state.contract.abi);
-  const address = useSelector((state) => state.contract.address);
+  const abi = useSelector((s) => s.contract.abi);
+  const contractAddress = useSelector((s) => s.contract.address);
 
-  const balance = useContractRead({
+  // owner normalisieren/validieren
+  const ownerAddr = (() => {
+    try { return isAddress(id ?? '') ? getAddress(id) : null; } catch { return null; }
+  })();
+
+  // nur totalSupply beobachten (günstig)
+  const totalSupply = useContractRead({
     abi,
-    address,
-    functionName: 'balanceOf',
-    args: [id],
+    address: contractAddress,
+    functionName: 'totalSupply',
     watch: true,
+    enabled: Boolean(abi && contractAddress),
   });
 
-  const fetchAnimals = async () => {
-    setLoading(true);
-    const animals = [];
+  const fetchAnimals = useCallback(async () => {
+    if (!abi || !contractAddress || !ownerAddr) {
+      setAllAnimals([]);
+      return;
+    }
 
-    for (let i = 0; i < Number(balance.data); i++) {
+    setLoading(true);
+    setAllAnimals([]);
+
+    const supply = Number((totalSupply?.data ?? 0n));
+    for (let tokenId = 0; tokenId < supply; tokenId++) {
       try {
-        const animalId = await readContract({
-          abi,
-          address,
-          functionName: 'tokenOfOwnerByIndex',
-          args: [id, i],
+        const tokenOwner = await readContract({
+          abi, address: contractAddress, functionName: 'ownerOf', args: [BigInt(tokenId)],
         });
+        if (getAddress(tokenOwner) !== ownerAddr) continue;
 
         const animal = await readContract({
-          abi,
-          address,
-          functionName: 'getAnimal',
-          args: [animalId],
+          abi, address: contractAddress, functionName: 'getAnimal', args: [BigInt(tokenId)],
         });
 
-        animals.push(animal);
-        setAllAnimals([...animals]); // For smoother UI
-      } catch (error) {
-        console.warn(`Error fetching animal for owner ${id}:`, error);
+        // UI smooth updaten
+        setAllAnimals(prev => [...prev, animal]);
+      } catch {
+        // nicht existent / burned → ignorieren
+        continue;
       }
     }
 
     setLoading(false);
-  };
+  }, [abi, contractAddress, ownerAddr, totalSupply?.data]);
 
-  useEffect(() => {
-    fetchAnimals();
-  }, [id]);
+  useEffect(() => { fetchAnimals(); }, [fetchAnimals]);
 
   return (
     <main className="glass-card p-6 mt-32 max-w-6xl mx-auto">
       <h1 className="page-heading mb-4">
-        <EthAddress>{id}</EthAddress>'s Pet{allAnimals.length !== 1 && "s"}
+        <EthAddress>{ownerAddr ?? 'Invalid address'}</EthAddress>'s Pet{allAnimals.length !== 1 && "s"}
       </h1>
 
       <div className="flex justify-start mb-4">
-        <button className="crypto-button" onClick={fetchAnimals}>
-          Refresh
+        <button className="crypto-button" onClick={fetchAnimals} disabled={loading || !ownerAddr || !abi || !contractAddress}>
+          {loading ? 'Loading…' : 'Refresh'}
         </button>
       </div>
 
       <ul className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {loading && <li className="text-white text-center text-xl">Loading...</li>}
-
+        {loading && <li className="text-white text-center text-xl col-span-full">Loading...</li>}
         {!loading && allAnimals.length > 0 ? (
-          allAnimals.map((animal, index) => (
-            <AnimalCard key={index} animal={animal} />
-          ))
+          allAnimals.map((animal, idx) => <AnimalCard key={idx} animal={animal} />)
         ) : (
-          <li className="text-white text-center text-lg italic col-span-full">
-            No pets found.
-          </li>
+          !loading && <li className="text-white text-center text-lg italic col-span-full">No pets found.</li>
         )}
       </ul>
     </main>

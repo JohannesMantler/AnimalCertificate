@@ -1,21 +1,42 @@
 import React from 'react';
 import { Link } from "react-router-dom";
+import { useAccount } from "wagmi";
+import { getAddress, isAddress } from "viem";
 import * as AnimalMaps from '../../constants';
 
 const AnimalCard = ({ animal }) => {
+  const { address } = useAccount();
+
+  const isMine = (() => {
+    try {
+      if (!address || !animal?.owner) return false;
+      if (!isAddress(animal.owner)) return false;
+      return getAddress(animal.owner) === getAddress(address);
+    } catch {
+      return false;
+    }
+  })();
+
   return (
-    <li className="glass-card grid grid-cols-5 grid-rows-4 w-full rounded-lg border border-white h-fit drop-shadow-md">
+    <li className="glass-card grid grid-cols-5 grid-rows-4 w-full rounded-lg border border-white h-fit drop-shadow-md relative">
+      {/* "Your pet" badge */}
+      {isMine && (
+        <span className="absolute top-1 right-2 text-[0.65rem] px-2 py-1 rounded-full bg-emerald-600 text-white font-semibold tracking-wide">
+          Your pet
+        </span>
+      )}
+
       {/* Avatar */}
       <div className="row-span-4 col-span-1 flex items-center justify-center border-r border-white p-2">
         <img
-            src={
-              animal.imageHash
-                ? `https://gateway.pinata.cloud/ipfs/${animal.imageHash}`
-                : AnimalMaps.ANIMAL_SPECIES_IMAGES[animal.species ?? 99]
-            }
-            alt="Animal"
-            className="w-20 h-20 object-cover mx-auto rounded-full border-2 border-white"
-          />
+          src={
+            animal.imageHash
+              ? `https://gateway.pinata.cloud/ipfs/${animal.imageHash}`
+              : AnimalMaps.ANIMAL_SPECIES_IMAGES[animal.species ?? 99]
+          }
+          alt="Animal"
+          className="w-20 h-20 object-cover mx-auto rounded-full border-2 border-white"
+        />
       </div>
 
       {/* Title */}

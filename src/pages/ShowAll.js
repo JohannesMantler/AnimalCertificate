@@ -14,6 +14,7 @@ import { readContract } from '@wagmi/core';
 import { useContractRead } from 'wagmi';
 import contract_abi from '../abis/AnimalCertificate.json';
 import AnimalCard from './bits/AnimalCard';
+import { getAddress, isAddress } from 'viem';
 
 
 const ShowAll = () => {
@@ -94,9 +95,15 @@ const ShowAll = () => {
           });
           console.log("👤 ownerOf:", i, owner);
 
+          let normalizedOwner = null;
+
+          if (typeof owner === "string" && isAddress(owner)) {
+            normalizedOwner = getAddress(owner); // checksummed and safe
+          }
+
           const cleaned = {
             ...siftBigInt(rawAnimal),
-            owner: siftBigInt(owner),
+            owner: normalizedOwner,
           };
 
           console.log("✅ Cleaned animal:", cleaned);

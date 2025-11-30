@@ -6,6 +6,8 @@ import { useContractRead } from 'wagmi';
 import { getAddress, isAddress } from 'viem';
 import AnimalCard from './bits/AnimalCard';
 import EthAddress from './bits/EthAddress';
+import { siftBigInt } from '../constants';
+
 
 const AnimalsByOwner = () => {
   const [allAnimals, setAllAnimals] = useState([]);
@@ -42,16 +44,35 @@ const AnimalsByOwner = () => {
     for (let tokenId = 0; tokenId < supply; tokenId++) {
       try {
         const tokenOwner = await readContract({
-          abi, address: contractAddress, functionName: 'ownerOf', args: [BigInt(tokenId)],
+          abi,
+          address: contractAddress,
+          functionName: 'ownerOf',
+          args: [BigInt(tokenId)],
         });
-        if (getAddress(tokenOwner) !== ownerAddr) continue;
+
+        // Normalize and validate owner
+        let normalizedOwner = null;
+        if (typeof tokenOwner === 'string' && isAddress(tokenOwner)) {
+          normalizedOwner = getAddress(tokenOwner);
+        }
+
+        // Skip if invalid owner OR not the requested owner
+        if (!normalizedOwner || normalizedOwner !== ownerAddr) continue;
 
         const animal = await readContract({
-          abi, address: contractAddress, functionName: 'getAnimal', args: [BigInt(tokenId)],
+          abi,
+          address: contractAddress,
+          functionName: 'getAnimal',
+          args: [BigInt(tokenId)],
         });
 
-        // UI smooth updaten
-        setAllAnimals(prev => [...prev, animal]);
+        const cleaned = {
+          ...siftBigInt(animal),
+          owner: normalizedOwner, // already checksummed
+        };
+
+        // UI smooth update
+        setAllAnimals(prev => [...prev, cleaned]);
       } catch {
         // nicht existent / burned → ignorieren
         continue;

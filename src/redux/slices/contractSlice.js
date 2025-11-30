@@ -6,7 +6,7 @@ const contractSlice = createSlice({
     name: 'contract',
     initialState: {
         abi: CONTRACT_ABI,
-        address: '0xd706Da7DEE1802282659208dA3D6fbDB81a42EdB',
+        address: '0x1777cb6f5bE3a3D0f442E92BA7Ec0011f363E7eE', // <- Sepolia-Adresse! (Ändern hier und in web3context.js bei neuem Deployment)
     },
     reducers: {
         setAbi: (state, action) => {

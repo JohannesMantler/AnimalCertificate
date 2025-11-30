@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ReusableDropdown from './bits/ReusableDropdown';
-import { clearAnimals, mergeAnimals } from '../redux/slices/animalSlice';
+import { clearAnimals, extendAnimals } from '../redux/slices/animalSlice';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   setSortBy,
@@ -60,67 +60,68 @@ const ShowAll = () => {
     manualFetchSupply();
   }, [contract_supply.isSuccess, contract_address]);
 
-  const fetchAnimalsFromContract = async () => {
-    if (!contract_supply.isSuccess || !contract_supply.data) {
-      console.warn('⏳ Waiting for contract supply...');
-      return;
-    }
+    const fetchAnimalsFromContract = async (force = false) => {
+      if (!contract_supply.isSuccess || !contract_supply.data) {
+        console.warn('⏳ Waiting for contract supply...');
+        return;
+      }
 
-    const supply = Number(contract_supply.data.toString());
-    console.log("🐢 totalSupply reported:", supply);
-    const twoMinutesAgo = Date.now() - 2 * 60 * 1000;
-    if (lastAnimalUpdate >= twoMinutesAgo) return;
+      const supply = Number(contract_supply.data.toString());
+      console.log("🐢 totalSupply reported:", supply);
 
-    setLoading(true);
-    const updatedAnimals = [...allAnimals];
+      const twoMinutesAgo = Date.now() - 120000;
 
-    for (let i = 0; i < supply; i++) {
-      console.log("🔍 Checking animal ID", i);
-      const exists = updatedAnimals.some(animal => Number(animal.id) === i);
-      if (!exists) {
+      // Throttle nur wenn:
+      // - kein force refresh
+      // - vor <2 min aktualisiert
+      // - wir haben bereits gleich viele Tiere wie supply
+      if (!force && lastAnimalUpdate >= twoMinutesAgo && allAnimals.length === supply) {
+        console.log("⏩ Skipping fetch: throttled");
+        return;
+      }
+
+      setLoading(true);
+
+      const freshAnimals = [];
+
+      for (let i = 0; i < supply; i++) {
         try {
           const rawAnimal = await readContract({
             abi: contract_abi,
             address: contract_address,
             functionName: 'getAnimal',
-            args: [i],
+            args: [BigInt(i)],
           });
-          console.log("🐾 rawAnimal:", i, rawAnimal);
 
           const owner = await readContract({
             abi: contract_abi,
             address: contract_address,
             functionName: 'ownerOf',
-            args: [i],
+            args: [BigInt(i)],
           });
-          console.log("👤 ownerOf:", i, owner);
 
           let normalizedOwner = null;
-
           if (typeof owner === "string" && isAddress(owner)) {
-            normalizedOwner = getAddress(owner); // checksummed and safe
+            normalizedOwner = getAddress(owner);
           }
 
-          const cleaned = {
+          freshAnimals.push({
             ...siftBigInt(rawAnimal),
-            id: i,
+            id: i, // fix ID
             owner: normalizedOwner,
-          };
+          });
 
-          console.log("✅ Cleaned animal:", cleaned);
-          updatedAnimals.push(cleaned);
         } catch (err) {
-          console.warn(`⚠️ Skipping token ID ${i}: getAnimal or ownerOf failed`, err);
+          console.warn(`⚠️ Token ${i} does not exist or failed`, err);
         }
-      } else {
-        console.log(`⏩ Skipping ID ${i}, already exists in local state`);
       }
-    }
 
-    console.log("📦 Dispatching animals to Redux:", updatedAnimals);
-    dispatch(mergeAnimals(updatedAnimals));
-    setLoading(false);
-  };
+      // ❗ Komplett ersetzen statt mergen
+      dispatch(clearAnimals());
+      dispatch(extendAnimals(freshAnimals));
+
+      setLoading(false);
+    };
 
   useEffect(() => {
     if (contract_supply.isSuccess && contract_supply.data) {
@@ -187,10 +188,10 @@ const ShowAll = () => {
       <div className="flex flex-wrap gap-2 mb-6">
         <button
           className="crypto-button text-sm"
-          onClick={fetchAnimalsFromContract}
+          onClick={() => fetchAnimalsFromContract(true)}
           title="Refresh Animals"
         >
-          &#8635;
+          Refresh &#8635;
         </button>
 
         <ReusableDropdown

@@ -78,9 +78,40 @@ const ConfirmPregnancyButton = ({animal}) => {
                 setIsErrorOpen(r !== true)
             })
         console.log("confirmed pregnancie")
+        const fatherAnimal = allAnimals.find(a => a.id == 9); // oder maleId statt 9
+        const motherAnimal = animal; // Das ist ja schon da (ID 6)
+
+        console.log("--- DETEKTIV START ---");
+
+        if (fatherAnimal) {
+            console.log("VATER (ID 9) GEHÖRT:", fatherAnimal.owner);
+            console.log("MEIN ACCOUNT IST:  ", address);
+
+            console.log("Vater Geschlecht:", fatherAnimal.gender); // Muss 1 sein
+            console.log("Vater Spezies:   ", fatherAnimal.species); // Muss gleich sein wie Mutter
+
+            // DER WICHTIGSTE CHECK:
+            if (fatherAnimal.owner.toLowerCase() !== address.toLowerCase()) {
+                console.error("ALARM: Der Vater gehört dir nicht!");
+            }
+        } else {
+            console.error("Vater mit ID 9 nicht im Redux gefunden!");
+        }
+        console.log("--- FINALER STATUS CHECK ---");
+        console.log("Ist Mutter schwanger? (Muss false sein):", animal.pregnant);
+        console.log("Todesdatum Mutter (Muss 0 sein):", animal.dateOfDeath);
+        console.log("Todesdatum Vater (Muss 0 sein):", fatherAnimal.dateOfDeath);
+        console.log("--- DETEKTIV ENDE ---");
     };
     
     const handleMaleChange = (value) => {
+        console.log("Dropdown hat ausgewählt:",value);
+        console.log("Typ der Variable", typeof(value));
+        console.log("Versuche Schwangerschaft zu bestätigen:");
+        console.log("Mutter (ID " + animal.id + ") Geschlecht:", animal.gender); // 0 = Female, 1 = Male (meistens)
+        console.log("Vater (ID " + maleId + ")");
+        console.log("Spezies Mutter:", animal.species);
+// Prüfe, ob du versehentlich zwei verschiedene Spezies verpaarst oder die Geschlechter vertauscht hast.
         setMaleId(value)
     };
     

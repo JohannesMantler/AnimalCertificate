@@ -1,196 +1,187 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {useSelector, useDispatch} from 'react-redux';
-import {prepareWriteContract, writeContract} from "wagmi/actions";
-
+import { useSelector, useDispatch } from 'react-redux';
+import { prepareWriteContract, writeContract } from "wagmi/actions";
 import { setCountdown, setColor, setLink, setText } from '../../redux/slices/tooltipSlice';
-
-import {
-    useAccount
-} from 'wagmi'
-
-import * as AnimalMaps from "../../constants";
+import { useAccount } from 'wagmi';
 import ReusableDropdown from './ReusableDropdown';
 
-const BirthButton = ({animal}) => {
+const BirthButton = ({ animal }) => {
     const dispatch = useDispatch();
+    const { address } = useAccount();
 
-
+    // States für Modal
     const [isModalOpen, setModalOpen] = useState(false);
     const [isErrorOpen, setIsErrorOpen] = useState(false);
-    const cancelButtonRef = useRef(null);
-    
+
+    // Daten für Kind 1
+    const [child1Name, setChild1Name] = useState('');
+    const [child1Gender, setChild1Gender] = useState(0); // 0 = Female
+    const [child1Color, setChild1Color] = useState(0);   // 0 = Black
+
+    // Daten für Kind 2
+    const [child2Name, setChild2Name] = useState('');
+    const [child2Gender, setChild2Gender] = useState(0); // 0 = Female
+    const [child2Color, setChild2Color] = useState(0);   // 0 = Black
+
     const contract_abi = useSelector((state) => state.contract.abi);
     const contract_address = useSelector((state) => state.contract.address);
-    
-    
-    const { address, isConnected } = useAccount()
-    const allAnimals = useSelector((state) => state.animal.animals);
-    
-    
-    const [girNames, setGirNames] = useState("");
-    const [boyNames, setBoyNames] = useState("");
-    const [furColor, setFurColor] = useState(null);
-    
-    useEffect(() => {
-        if (isModalOpen) {
-            cancelButtonRef.current.focus();
-        }
-    }, [isModalOpen]);
-    
-    const handleDeathClick = () => setModalOpen(true);
-    
-    const handleCancel = () => {
-        setModalOpen(false);
-        console.log("DEATH PREVENTED!");
-    };
-    
-    const confirm_birth = async (id) => {
-        if(furColor === null || girNames === null || boyNames === null){
+    const cancelButtonRef = useRef(null);
+
+    const genderOptions = [{ label: 'Female', value: 0 }, { label: 'Male', value: 1 }];
+    const colorOptions = [
+        { label: 'Black', value: 0 }, { label: 'White', value: 1 },
+        { label: 'Brown', value: 2 }, { label: 'Grey', value: 3 },
+        { label: 'Red', value: 4 }, { label: 'Orange', value: 5 }
+    ];
+
+    const confirm_birth = async () => {
+        if (!child1Name || !child2Name) {
+            console.error("Namen für beide Kinder fehlen");
             return false;
         }
-        
-        let girNameList = girNames.split(',').map(name => name.trim());
-        let boyNameList = boyNames.split(',').map(name => name.trim());
-        
-        if(girNameList.length <= 0 && boyNameList.length <= 0){
-            return false;
-        }
-        
-        const config = await prepareWriteContract({
-            address: contract_address,
-            abi: contract_abi,
-            functionName: 'birth',
-            args: [id, girNameList, boyNameList, furColor]
-        })
 
         try {
-            const transaction= await writeContract(config)
-            
+            console.log("Sende Zwillings-Geburtsdaten an Blockchain...");
+
+            // Der Vater wird nun im Smart Contract automatisch über 'matePartner' ermittelt.
+            // Wir senden Daten für 2 Kinder.
+            const config = await prepareWriteContract({
+                address: contract_address,
+                abi: contract_abi,
+                functionName: 'reportBirth',
+                args: [
+                    animal.id,          // Mutter ID
+                    // Kind 1
+                    child1Name,
+                    child1Gender,
+                    child1Color,
+                    "QmDefaultHash1",   // Placeholder Hash 1
+                    // Kind 2
+                    child2Name,
+                    child2Gender,
+                    child2Color,
+                    "QmDefaultHash2"    // Placeholder Hash 2
+                ]
+            });
+
+            const transaction = await writeContract(config);
+            console.log("Transaktion erfolgreich:", transaction);
+
             dispatch(setColor('green'));
             dispatch(setCountdown(5000));
-            dispatch(setText(animal.breed+' gave birth'));
-            dispatch(setLink("/owner/"+animal.owner+"/"));
-            
+            dispatch(setText('Zwillinge geboren!'));
+
             return true;
         } catch (error) {
-            console.log(error.message)
+            console.error("Fehler bei reportBirth:", error);
             return false;
         }
-    }
-    
+    };
+
     const handleConfirm = () => {
-        // Set the state to close the modal
-        setModalOpen(false);
-        confirm_birth(animal.id)
-            .then(r => {
-                console.log(r)
-                setIsErrorOpen(r !== true)
-            })
-        console.log("confirmed pregnancie")
+        confirm_birth().then((success) => {
+            if (success) {
+                setModalOpen(false);
+            } else {
+                setIsErrorOpen(true);
+            }
+        });
     };
-    
-    const handleFurChange = (value) => {
-        setFurColor(value)
-    };
-    
-    console.log(Object.entries(AnimalMaps.ANIMAL_COLORS));
-    
-    const fur_color_selectorate = Object.entries(AnimalMaps.ANIMAL_COLORS).filter(([key, value]) =>{
-        return key !== '99';
-    }).map(([key, value]) => {
-        return {
-            "label": value,
-            "value": key
-        }
-    });
-    
-    console.log(fur_color_selectorate)
-    
-    
+
     return (
-        <div>
+        <>
             <button
-                className="bg-pink-600 hover:bg-pink-500 text-white font-bold py-2 px-4 rounded"
-                onClick={handleDeathClick}
+                className="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded"
+                onClick={() => setModalOpen(true)}
             >
-                Report Birth
+                Report Birth (Zwillinge)
             </button>
+
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                    <div className="bg-white p-6 rounded">
-                        
-                        
-                        <p className="text-gray-800 mb-4">
-                            Congratulations! Your pet gave birth.
-                            You are now able to name your pet's litter: 
-                        </p>
-                        
-                        <div className="grid grid-cols-2 gap-2">
-                            <input
-                                type='text'
-                                className='milky-glass my-5 form-control text-gray-800 text-sm rounded-lg focus:border-blue-500 block w-full p-2.5 border-2 border-gray-800 placeholder-neutral-700 placeholder-opacity-70'
-                                placeholder='e.g. Roxy, Lea, Phoebe'
-                                onChange={(e) => setGirNames(e.target.value)}
-                                value={girNames}
-                                
-                            />
-                            <input
-                                type='text'
-                                className='milky-glass my-5 form-control text-gray-800 text-sm rounded-lg focus:border-blue-500 block w-full p-2.5 border-2 border-gray-800 placeholder-neutral-700 placeholder-opacity-70'
-                                placeholder='e.g. Felix, Monkey, Michael'
-                                onChange={(e) => setBoyNames(e.target.value)}
-                                value={boyNames}
-                                
-                            />
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{zIndex: 1000}}>
+                    <div className="bg-white p-6 rounded shadow-lg w-[600px] text-black overflow-y-auto max-h-[90vh]">
+                        <h2 className="text-xl font-bold mb-4 text-center">Geburt melden (Zwillinge)</h2>
+                        <p className="text-sm text-gray-500 mb-4 text-center">Der Vater ist durch die vorherige Paarung bereits festgelegt.</p>
+
+                        <div className="flex gap-4">
+                            {/* Spalte Kind 1 */}
+                            <div className="w-1/2 p-2 border rounded bg-gray-50">
+                                <h3 className="font-bold mb-2 border-b pb-1">Kind 1</h3>
+                                <div className="mb-3">
+                                    <label className="block text-sm font-bold mb-1">Name</label>
+                                    <input
+                                        type="text"
+                                        className="border p-2 w-full rounded"
+                                        value={child1Name}
+                                        onChange={(e) => setChild1Name(e.target.value)}
+                                        placeholder="Name Kind 1"
+                                    />
+                                </div>
+                                <div className="mb-3">
+                                    <label className="block text-sm font-bold mb-1">Geschlecht</label>
+                                    <ReusableDropdown options={genderOptions} onChange={setChild1Gender} default_label="Female" />
+                                </div>
+                                <div className="mb-3">
+                                    <label className="block text-sm font-bold mb-1">Farbe</label>
+                                    <ReusableDropdown options={colorOptions} onChange={setChild1Color} default_label="Black" />
+                                </div>
+                            </div>
+
+                            {/* Spalte Kind 2 */}
+                            <div className="w-1/2 p-2 border rounded bg-gray-50">
+                                <h3 className="font-bold mb-2 border-b pb-1">Kind 2</h3>
+                                <div className="mb-3">
+                                    <label className="block text-sm font-bold mb-1">Name</label>
+                                    <input
+                                        type="text"
+                                        className="border p-2 w-full rounded"
+                                        value={child2Name}
+                                        onChange={(e) => setChild2Name(e.target.value)}
+                                        placeholder="Name Kind 2"
+                                    />
+                                </div>
+                                <div className="mb-3">
+                                    <label className="block text-sm font-bold mb-1">Geschlecht</label>
+                                    <ReusableDropdown options={genderOptions} onChange={setChild2Gender} default_label="Female" />
+                                </div>
+                                <div className="mb-3">
+                                    <label className="block text-sm font-bold mb-1">Farbe</label>
+                                    <ReusableDropdown options={colorOptions} onChange={setChild2Color} default_label="Black" />
+                                </div>
+                            </div>
                         </div>
-                        
-                        <p className="text-gray-800 mb-4">
-                            Select the color of the litter:
-                            <span className="text-black">
-                                <ReusableDropdown
-                                    options={fur_color_selectorate}
-                                    onChange={handleFurChange}
-                                    store_adress={null}
-                                    default_label="select color"
-                                /> 
-                            </span>
-                        </p>
-                        
-                        
-                        
-                        <button
-                            className="bg-pink-600 hover:bg-pink-500 text-white font-bold py-2 px-4 mt-4 rounded"
-                            onClick={handleConfirm}
-                        >
-                            Accept
-                        </button>
-                        <button
-                            className="bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold py-2 px-4 ml-2 mt-4 rounded"
-                            autoFocus
-                            ref={cancelButtonRef}
-                            onClick={handleCancel}
-                        >
-                            Cancel
-                        </button>
+
+                        {/* Buttons */}
+                        <div className="flex justify-end gap-2 mt-6">
+                            <button
+                                className="bg-gray-300 px-4 py-2 rounded font-bold text-gray-700"
+                                onClick={() => setModalOpen(false)}
+                                ref={cancelButtonRef}
+                            >
+                                Abbrechen
+                            </button>
+                            <button
+                                className={`px-4 py-2 rounded font-bold text-white ${(!child1Name || !child2Name) ? 'bg-green-300 cursor-not-allowed' : 'bg-green-600 hover:bg-green-500'}`}
+                                onClick={handleConfirm}
+                                disabled={!child1Name || !child2Name}
+                            >
+                                Bestätigen & Minten
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
+
             {isErrorOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                    <div className="bg-red-400 p-6 rounded">
-                        <p className="text-white mb-4">
-                            An error occurred!
-                        </p>
-                        <button
-                            className="bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold py-2 px-4 ml-2 mt-4 rounded mx-auto"
-                            autoFocus
-                            onClick={() => setIsErrorOpen(false)}>
-                            OK
-                        </button>
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{zIndex: 1100}}>
+                    <div className="bg-red-100 border-l-4 border-red-500 p-6 rounded text-red-700">
+                        <p className="font-bold">Fehler</p>
+                        <p>Transaktion fehlgeschlagen. Siehe Konsole (F12) für Details.</p>
+                        <button className="mt-4 bg-red-500 text-white px-4 py-2 rounded" onClick={() => setIsErrorOpen(false)}>OK</button>
                     </div>
                 </div>
             )}
-        </div>
+        </>
     );
 };
 

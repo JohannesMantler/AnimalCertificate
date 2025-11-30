@@ -5,7 +5,7 @@ import CONTRACT_ABI from '../abis/AnimalCertificate.json';
 const SEPOLIA_DEC = 11155111;
 const SEPOLIA_HEX = '0xaa36a7';
 const SEPOLIA_RPC = 'https://sepolia.infura.io/v3/88367459424444b6bd970a6a812a2098';
-const CONTRACT_ADDRESS = '0x1777cb6f5bE3a3D0f442E92BA7Ec0011f363E7eE'; // <- Sepolia-Adresse!(Ändern hier und in contractSlice.js bei neuem Deployment)
+const CONTRACT_ADDRESS = '0xa4fA9e96d0fbD6676474B03b8cE49aDb121bCAF6'; // <- Sepolia-Adresse!(Ändern hier und in contractSlice.js bei neuem Deployment)
 
 async function ensureSepoliaChain() {
   const { ethereum } = window;

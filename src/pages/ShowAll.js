@@ -76,7 +76,7 @@ const ShowAll = () => {
 
     for (let i = 0; i < supply; i++) {
       console.log("🔍 Checking animal ID", i);
-      const exists = updatedAnimals.some(animal => animal.id === i);
+      const exists = updatedAnimals.some(animal => Number(animal.id) === i);
       if (!exists) {
         try {
           const rawAnimal = await readContract({
@@ -103,6 +103,7 @@ const ShowAll = () => {
 
           const cleaned = {
             ...siftBigInt(rawAnimal),
+            id: i,
             owner: normalizedOwner,
           };
 

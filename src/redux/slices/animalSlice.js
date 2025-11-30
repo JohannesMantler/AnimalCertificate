@@ -2,9 +2,13 @@ import { createSlice } from '@reduxjs/toolkit';
 
 
 const mergeArraysRemovingDuplicates = (array, itemsToAdd) => {
-    const existingIds = new Set(array.map(item => item.id));
-    return [...array, ...itemsToAdd.filter(item => !existingIds.has(item.id))];
+    const existingIds = new Set(array.map(item => Number(item.id)));
+    return [
+        ...array,
+        ...itemsToAdd.filter(item => !existingIds.has(Number(item.id)))
+    ];
 };
+
 
 const animalSlice = createSlice({
     name: 'animals',

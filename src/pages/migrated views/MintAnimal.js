@@ -16,6 +16,7 @@ const MintAnimal = () => {
   const [loading, setLoading] = useState(false);
   const [imageUploading, setImageUploading] = useState(false);
   const [diseases, setDiseases] = useState([]);
+  const [vacccinations, setVacccinations] = useState([]);
   const [furColor, setFurColor] = useState('');
   const [species, setSpecies] = useState('');
   const [gender, setGender] = useState('');
@@ -26,9 +27,12 @@ const MintAnimal = () => {
   const [showSecurityMessage, setShowSecurityMessage] = useState(false);
 
 
-  const handleSelectChange = (event) => {
-    setDiseases(Array.from(event.target.selectedOptions, option => parseInt(option.value)));
-  };
+ const handleDiseasesChange = (e) =>
+  setDiseases(Array.from(e.target.selectedOptions, o => Number(o.value)));
+
+const handleVaccinationsChange = (e) =>
+  setVaccinations(Array.from(e.target.selectedOptions, o => Number(o.value)));
+
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
@@ -74,7 +78,7 @@ const MintAnimal = () => {
     }
   };
 
-  const mint = async (gender, species, name, birthdate, diseases, furColor, imageHash) => {
+  const mint = async (gender, species, name, birthdate, diseases, vaccinations, furColor, imageHash) => {
     try {
       console.log("🔵 Starting mint function...");
   
@@ -120,6 +124,7 @@ const MintAnimal = () => {
             const unixTimestamp = Math.floor(new Date(birthdate).getTime() / 1000);
 
             const parsedDiseases = diseases.map((d) => Number(d));
+            const parsedVacccinations = vacccinations.map((d) => Number(d));
 
             console.log("Mint args:", {
               gender: parseInt(gender),
@@ -127,6 +132,7 @@ const MintAnimal = () => {
               name: name.trim(),
               birthdate: unixTimestamp,
               diseases: parsedDiseases,
+              vacccinations: parsedVacccinations,
               furColor: parseInt(furColor),
               imageHash: imageHash.trim().replace(/^https:\/\/[^/]+\/ipfs\//, '')
             });
@@ -155,6 +161,7 @@ const MintAnimal = () => {
               name.trim(),
               unixTimestamp,
               parsedDiseases,
+              parsedVacccinations,
               parseInt(furColor),
               imageHash.trim().replace(/^https:\/\/[^/]+\/ipfs\//, '')
             ).finally(() => setLoading(false));
@@ -202,11 +209,21 @@ const MintAnimal = () => {
           />
           <select
             multiple
-            onChange={handleSelectChange}
+            onChange={handleDiseasesChange}
             className='my-5 form-control bg-transparent text-white text-sm rounded-lg focus:bg-white focus:text-neutral-800 focus:border-sky-300 block w-full p-2.5 border-2 border-white'
           >
             <option disabled value="">Select diseases</option>
             {Object.entries(AnimalMaps.ANIMAL_DISEASES).map(([key, value]) =>
+              key !== "99" && <option key={key} value={key}>{value}</option>
+            )}
+          </select>
+          <select
+            multiple
+            onChange={handleVaccinationsChange}
+            className='my-5 form-control bg-transparent text-white text-sm rounded-lg focus:bg-white focus:text-neutral-800 focus:border-sky-300 block w-full p-2.5 border-2 border-white'
+          >
+            <option disabled value="">Select Vaccinations</option>
+            {Object.entries(AnimalMaps.ANIMAL_VACCINATIONS).map(([key, value]) =>
               key !== "99" && <option key={key} value={key}>{value}</option>
             )}
           </select>

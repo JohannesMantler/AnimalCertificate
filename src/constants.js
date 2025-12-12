@@ -37,8 +37,23 @@ export const ANIMAL_DISEASES = {
     6: 'Cancer',
     7: 'Hyperthyroidism',
     8: 'Atopy',
+    9: 'No known diseases',
     99: 'n/a'
   };  
+
+export const ANIMAL_VACCINATIONS = {
+    0: 'Rabies',
+    1: 'Distemper',
+    2: 'Parvovirus',
+    3: 'Adenovirus',
+    4: 'Parainfluenza',
+    5: 'Leptospirosis',
+    6: 'Bordetella',
+    7: 'Lyme disease',
+    8: 'Canine Influenza',
+    9: 'No known vaccines',
+    99: 'n/a'
+  };
 
 export const ANIMAL_SPECIES_IMAGES = {
     0: `${process.env.PUBLIC_URL}/dog.png`,

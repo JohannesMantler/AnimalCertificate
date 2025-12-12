@@ -4,8 +4,33 @@ import { useAccount } from "wagmi";
 import { getAddress, isAddress } from "viem";
 import * as AnimalMaps from '../../constants';
 
-const AnimalCard = ({ animal }) => {
+const normalizeAnimal = (a) => {
+  if (!a) return null;
+
+  return {
+    id: a[0],
+    mother: a[1],
+    father: a[2],
+    matePartner: a[3],
+    pregnant: a[4],
+    species: a[5],
+    name: a[6],
+    gender: a[7],
+    diseases: a[8] ?? [],
+    vaccinations: a[9] ?? [],
+    dateOfBirth: a[10],
+    dateOfDeath: a[11],
+    furColor: a[12],
+    imageHash: a[13],
+    owner: a.owner, // keep if your list attaches it
+  };
+};
+
+const AnimalCard = ({ animal: rawAnimal }) => {
+  const animal = normalizeAnimal(rawAnimal);
   const { address } = useAccount();
+
+  if (!animal) return null;
 
   const isMine = (() => {
     try {
@@ -57,9 +82,14 @@ const AnimalCard = ({ animal }) => {
         <span><b>Birthday</b>: {new Date(Number(animal.dateOfBirth) * 1000).toLocaleDateString('de-AT')}</span>
         <span><b>Fur Color</b>: {AnimalMaps.ANIMAL_COLORS[animal.furColor ?? 99]}</span>
         <span className="col-span-2">
-          <b>Diseases</b>: {animal.diseases.length > 0
-            ? animal.diseases.map((d) => AnimalMaps.ANIMAL_DISEASES[d]).join(", ")
+          <b>Diseases</b>: {(animal.diseases?.length ?? 0) > 0
+            ? animal.diseases.map((d) => AnimalMaps.ANIMAL_DISEASES[Number(d)]).join(", ")
             : "No known diseases"}
+        </span>
+        <span className="col-span-2">
+          <b>Vaccinations</b>: {(animal.vaccinations?.length ?? 0) > 0
+            ? animal.vaccinations.map((d) => AnimalMaps.ANIMAL_VACCINATIONS[Number(d)]).join(", ")
+            : "No known vaccines"}
         </span>
       </div>
     </li>

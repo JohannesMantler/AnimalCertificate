@@ -7,6 +7,27 @@ import * as AnimalMaps from '../../constants';
 const normalizeAnimal = (a) => {
   if (!a) return null;
 
+  // viem often returns structs as objects with named properties
+  if (typeof a === "object" && ("id" in a || "name" in a)) {
+    return {
+      id: a.id,
+      mother: a.mother,
+      father: a.father,
+      matePartner: a.matePartner,
+      pregnant: a.pregnant,
+      species: a.species,
+      name: a.name,
+      gender: a.gender,
+      diseases: a.diseases ?? [],
+      vaccinations: a.vaccinations ?? [],
+      dateOfBirth: a.dateOfBirth,
+      dateOfDeath: a.dateOfDeath,
+      furColor: a.furColor,
+      imageHash: a.imageHash,
+    };
+  }
+
+  // fallback if it comes as an array/tuple
   return {
     id: a[0],
     mother: a[1],
@@ -22,7 +43,6 @@ const normalizeAnimal = (a) => {
     dateOfDeath: a[11],
     furColor: a[12],
     imageHash: a[13],
-    owner: a.owner, // keep if your list attaches it
   };
 };
 

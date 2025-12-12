@@ -7,7 +7,7 @@ import contract_abi from "../abis/AnimalCertificate.json";
 import * as AnimalMaps from "../constants";
 import { useSelector } from "react-redux";
 import { useAccount, useContractRead } from "wagmi";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { prepareWriteContract, writeContract } from "wagmi/actions";
 import { ANIMAL_DISEASES, ANIMAL_VACCINATIONS } from "../constants";
 import { jsPDF } from "jspdf";
@@ -17,57 +17,102 @@ const AnimalDetails = () => {
   const contract_address = useSelector((state) => state.contract.address);
   const account = useAccount();
 
+  // Safe BigInt parsing
+  const tokenId = useMemo(() => {
+    try {
+      if (id == null) return null;
+      // Only allow digits to avoid BigInt("abc") crash
+      if (!/^\d+$/.test(id)) return null;
+      return BigInt(id);
+    } catch {
+      return null;
+    }
+  }, [id]);
+
+  const canRead = !!contract_abi && !!contract_address && tokenId !== null;
+
   const single_read_animal = useContractRead({
     abi: contract_abi,
     address: contract_address,
     functionName: "getAnimal",
-    args: [id],
+    args: canRead ? [tokenId] : undefined,
     watch: true,
-    enabled: !!contract_abi && !!contract_address && !!id,
+    enabled: canRead,
   });
 
   const single_ownerOf_animal = useContractRead({
     abi: contract_abi,
     address: contract_address,
     functionName: "ownerOf",
-    args: [id],
+    args: canRead ? [tokenId] : undefined,
     watch: true,
-    enabled: !!contract_abi && !!contract_address && !!id,
-  });
+    enabled: canRead,
+    });
 
-    const normalizeAnimal = (a) => {
-    if (!a) return null;
+  const normalizeAnimal = (a) => {
+  if (!a) return null;
 
+  // viem often returns structs as objects with named properties
+  if (typeof a === "object" && ("id" in a || "name" in a)) {
     return {
-        id: a[0],
-        mother: a[1],
-        father: a[2],
-        matePartner: a[3],
-        pregnant: a[4],
-        species: a[5],
-        name: a[6],
-        gender: a[7],
-        diseases: a[8] ?? [],
-        vaccinations: a[9] ?? [],
-        dateOfBirth: a[10],
-        dateOfDeath: a[11],
-        furColor: a[12],
-        imageHash: a[13],
+      id: a.id,
+      mother: a.mother,
+      father: a.father,
+      matePartner: a.matePartner,
+      pregnant: a.pregnant,
+      species: a.species,
+      name: a.name,
+      gender: a.gender,
+      diseases: a.diseases ?? [],
+      vaccinations: a.vaccinations ?? [],
+      dateOfBirth: a.dateOfBirth,
+      dateOfDeath: a.dateOfDeath,
+      furColor: a.furColor,
+      imageHash: a.imageHash,
     };
-    };
+  }
 
-    const rawAnimal = single_read_animal.data;
-    const animal = normalizeAnimal(rawAnimal);
-    const owner = single_ownerOf_animal.data;
+  // fallback if it comes as an array/tuple
+  return {
+    id: a[0],
+    mother: a[1],
+    father: a[2],
+    matePartner: a[3],
+    pregnant: a[4],
+    species: a[5],
+    name: a[6],
+    gender: a[7],
+    diseases: a[8] ?? [],
+    vaccinations: a[9] ?? [],
+    dateOfBirth: a[10],
+    dateOfDeath: a[11],
+    furColor: a[12],
+    imageHash: a[13],
+  };
+};
 
-  const abort_pregnancy = async (tokenId) => {
-    const config = await prepareWriteContract({
-      address: contract_address,
-      abi: contract_abi,
-      functionName: "abortPregnancy",
-      args: [tokenId],
-    });
+  const rawAnimal = single_read_animal.data;
+  const animal = normalizeAnimal(rawAnimal);
+  const owner = single_ownerOf_animal.data;
+
+  // ABI guard: abortPregnancy may not exist
+  const hasAbortPregnancy = useMemo(() => {
+    return Array.isArray(contract_abi) &&
+      contract_abi.some((x) => x?.type === "function" && x?.name === "abortPregnancy");
+  }, [contract_abi]);
+
+  const abort_pregnancy = async (tid) => {
+    if (!hasAbortPregnancy) {
+      console.warn("abortPregnancy not found in ABI");
+      return false;
+    }
     try {
+      const config = await prepareWriteContract({
+        address: contract_address,
+        abi: contract_abi,
+        functionName: "abortPregnancy",
+        args: [BigInt(tid)],
+      });
       await writeContract(config);
       return true;
     } catch (error) {
@@ -76,14 +121,14 @@ const AnimalDetails = () => {
     }
   };
 
-  const add_Disease = async (tokenId, disease) => {
-    const config = await prepareWriteContract({
-      address: contract_address,
-      abi: contract_abi,
-      functionName: "addDisease",
-      args: [tokenId, disease],
-    });
+  const add_Disease = async (tid, disease) => {
     try {
+      const config = await prepareWriteContract({
+        address: contract_address,
+        abi: contract_abi,
+        functionName: "addDisease",
+        args: [BigInt(tid), Number(disease)],
+      });
       await writeContract(config);
       return true;
     } catch (error) {
@@ -92,14 +137,14 @@ const AnimalDetails = () => {
     }
   };
 
-  const add_Vaccination = async (tokenId, vaccination) => {
-    const config = await prepareWriteContract({
-      address: contract_address,
-      abi: contract_abi,
-      functionName: "addVaccination",
-      args: [tokenId, vaccination],
-    });
+  const add_Vaccination = async (tid, vaccination) => {
     try {
+      const config = await prepareWriteContract({
+        address: contract_address,
+        abi: contract_abi,
+        functionName: "addVaccination",
+        args: [BigInt(tid), Number(vaccination)],
+      });
       await writeContract(config);
       return true;
     } catch (error) {
@@ -108,14 +153,14 @@ const AnimalDetails = () => {
     }
   };
 
-  const remove_Disease = async (tokenId, disease) => {
-    const config = await prepareWriteContract({
-      address: contract_address,
-      abi: contract_abi,
-      functionName: "removeDisease",
-      args: [tokenId, disease],
-    });
+  const remove_Disease = async (tid, disease) => {
     try {
+      const config = await prepareWriteContract({
+        address: contract_address,
+        abi: contract_abi,
+        functionName: "removeDisease",
+        args: [BigInt(tid), Number(disease)],
+      });
       await writeContract(config);
       return true;
     } catch (error) {
@@ -124,14 +169,14 @@ const AnimalDetails = () => {
     }
   };
 
-  const remove_Vaccination = async (tokenId, vaccination) => {
-    const config = await prepareWriteContract({
-      address: contract_address,
-      abi: contract_abi,
-      functionName: "removeVaccination",
-      args: [tokenId, vaccination],
-    });
+  const remove_Vaccination = async (tid, vaccination) => {
     try {
+      const config = await prepareWriteContract({
+        address: contract_address,
+        abi: contract_abi,
+        functionName: "removeVaccination",
+        args: [BigInt(tid), Number(vaccination)],
+      });
       await writeContract(config);
       return true;
     } catch (error) {
@@ -168,7 +213,6 @@ const AnimalDetails = () => {
     const leftX = marginX + 8;
     const valueX = marginX + 45;
 
-    // NOTE: remove TS types in .jsx
     const addLabelValue = (label, value) => {
       if (value === undefined || value === null) return;
       if (value === "") return;
@@ -191,16 +235,12 @@ const AnimalDetails = () => {
 
     const diseasesLabel =
       animal.diseases && animal.diseases.length > 0
-        ? animal.diseases
-            .map((d) => AnimalMaps.ANIMAL_DISEASES[Number(d)])
-            .join(", ")
+        ? animal.diseases.map((d) => AnimalMaps.ANIMAL_DISEASES[Number(d)]).join(", ")
         : "No known diseases";
 
     const vaccinationsLabel =
       animal.vaccinations && animal.vaccinations.length > 0
-        ? animal.vaccinations
-            .map((v) => AnimalMaps.ANIMAL_VACCINATIONS[Number(v)])
-            .join(", ")
+        ? animal.vaccinations.map((v) => AnimalMaps.ANIMAL_VACCINATIONS[Number(v)]).join(", ")
         : "No known vaccinations";
 
     doc.setFont("helvetica", "bold");
@@ -256,6 +296,8 @@ const AnimalDetails = () => {
   };
 
   const AbortPregnancyButton = () => {
+    if (!hasAbortPregnancy) return null; // don’t render button if not supported
+
     const [isModalOpen, setModalOpen] = useState(false);
     const [isErrorOpen, setIsErrorOpen] = useState(false);
     const cancelButtonRef = useRef(null);
@@ -329,7 +371,7 @@ const AnimalDetails = () => {
 
     const handleConfirm = () => {
       setModalOpen(false);
-      add_Disease(animal.id, Number(selectedDisease)).then((r) => console.log(r));
+      add_Disease(animal.id, Number(selectedDisease)).then(() => single_read_animal.refetch());
     };
 
     const SingleChoiceListOfPossibleDiseases = () => {
@@ -403,7 +445,7 @@ const AnimalDetails = () => {
 
     const handleConfirm = () => {
       setModalOpen(false);
-      add_Vaccination(animal.id, Number(selectedVaccination)).then((r) => console.log(r));
+      add_Vaccination(animal.id, Number(selectedVaccination)).then(() => single_read_animal.refetch());
     };
 
     const SingleChoiceListOfPossibleVaccinations = () => {
@@ -603,6 +645,15 @@ const AnimalDetails = () => {
       </div>
     );
   };
+
+  if (tokenId === null) {
+    return (
+      <main className="p-8 text-white text-center">
+        <h1 className="text-3xl font-bold mb-4">Invalid Animal ID</h1>
+        <p>Route param <b>{String(id)}</b> is not a valid token id.</p>
+      </main>
+    );
+  }
 
   if (single_read_animal.isError) {
     return (

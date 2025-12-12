@@ -90,7 +90,7 @@ const AnimalCard = ({ animal: rawAnimal }) => {
           glass-card
           block
           w-full
-          h-[260px]                 
+          h-[280px]                 
           rounded-lg
           border border-white
           drop-shadow-md
@@ -126,21 +126,21 @@ const AnimalCard = ({ animal: rawAnimal }) => {
             </span>
           </div>
 
-          <div className="row-span-3 col-span-4 p-4 grid grid-cols-2 gap-1 text-sm overflow-hidden">
+          <div className="row-span-3 col-span-4 p-4 grid grid-cols-2 gap-1 text-sm overflow-y-auto">
             <span><b>Species</b>: {AnimalMaps.ANIMAL_SPECIES[animal.species ?? 99]}</span>
             <span><b>Gender</b>: {AnimalMaps.ANIMAL_GENDERS[animal.gender ?? 99]}</span>
             <span><b>Birthday</b>: {new Date(Number(animal.dateOfBirth) * 1000).toLocaleDateString("de-AT")}</span>
             <span><b>Fur Color</b>: {AnimalMaps.ANIMAL_COLORS[animal.furColor ?? 99]}</span>
 
-            <span className="col-span-2 overflow-hidden" style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical"}}>
+            <span className="col-span-2">
 
               <b>Diseases</b>: {(animal.diseases?.length ?? 0) > 0
                 ? animal.diseases.map((d) => AnimalMaps.ANIMAL_DISEASES[Number(d)]).join(", ")
                 : "No known diseases"}
             </span>
 
-            <span className="col-span-2 overflow-hidden" style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical"}}>
-              <b>Vaccinations</b>: {(animal.vaccinations?.length ?? 0) > 0
+            <span className="col-span-2">
+                <b>Vaccinations</b>: {(animal.vaccinations?.length ?? 0) > 0
                 ? animal.vaccinations.map((d) => AnimalMaps.ANIMAL_VACCINATIONS[Number(d)]).join(", ")
                 : "No known vaccines"}
             </span>

@@ -216,7 +216,12 @@ const ShowAll = () => {
           onChange={(e) => {
             const val = e.target.value;
             setLocalSearchString(val);
-            dispatch(setSearchString(val));
+            dispatch(setSearchString(val)); 
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              setLocalSearchString(''); 
+            }
           }}
         />
       </div>

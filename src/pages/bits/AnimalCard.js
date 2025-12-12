@@ -132,13 +132,14 @@ const AnimalCard = ({ animal: rawAnimal }) => {
             <span><b>Birthday</b>: {new Date(Number(animal.dateOfBirth) * 1000).toLocaleDateString("de-AT")}</span>
             <span><b>Fur Color</b>: {AnimalMaps.ANIMAL_COLORS[animal.furColor ?? 99]}</span>
 
-            <span className="col-span-2 line-clamp-2">
+            <span className="col-span-2 overflow-hidden" style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical"}}>
+
               <b>Diseases</b>: {(animal.diseases?.length ?? 0) > 0
                 ? animal.diseases.map((d) => AnimalMaps.ANIMAL_DISEASES[Number(d)]).join(", ")
                 : "No known diseases"}
             </span>
 
-            <span className="col-span-2 line-clamp-2">
+            <span className="col-span-2 overflow-hidden" style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical"}}>
               <b>Vaccinations</b>: {(animal.vaccinations?.length ?? 0) > 0
                 ? animal.vaccinations.map((d) => AnimalMaps.ANIMAL_VACCINATIONS[Number(d)]).join(", ")
                 : "No known vaccines"}

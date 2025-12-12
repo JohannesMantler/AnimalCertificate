@@ -16,7 +16,7 @@ const MintAnimal = () => {
   const [loading, setLoading] = useState(false);
   const [imageUploading, setImageUploading] = useState(false);
   const [diseases, setDiseases] = useState([]);
-  const [vacccinations, setVacccinations] = useState([]);
+  const [vaccinations, setVaccinations] = useState([]);
   const [furColor, setFurColor] = useState('');
   const [species, setSpecies] = useState('');
   const [gender, setGender] = useState('');
@@ -86,7 +86,7 @@ const handleVaccinationsChange = (e) =>
         address: contract_address,
         abi: contract_abi,
         functionName: 'mint',
-        args: [gender, species, name, birthdate, diseases, vacccinations, furColor, imageHash]
+        args: [gender, species, name, birthdate, diseases, vaccinations, furColor, imageHash]
       });
   
       console.log("✅ prepareWriteContract successful:", config);
@@ -124,7 +124,7 @@ const handleVaccinationsChange = (e) =>
             const unixTimestamp = Math.floor(new Date(birthdate).getTime() / 1000);
 
             const parsedDiseases = diseases.map((d) => Number(d));
-            const parsedVacccinations = vacccinations.map((d) => Number(d));
+            const parsedVaccinations = vaccinations.map((d) => Number(d));
 
             console.log("Mint args:", {
               gender: parseInt(gender),
@@ -132,7 +132,7 @@ const handleVaccinationsChange = (e) =>
               name: name.trim(),
               birthdate: unixTimestamp,
               diseases: parsedDiseases,
-              vacccinations: parsedVacccinations,
+              vaccinations: parsedVaccinations,
               furColor: parseInt(furColor),
               imageHash: imageHash.trim().replace(/^https:\/\/[^/]+\/ipfs\//, '')
             });
@@ -161,7 +161,7 @@ const handleVaccinationsChange = (e) =>
               name.trim(),
               unixTimestamp,
               parsedDiseases,
-              parsedVacccinations,
+              parsedVaccinations,
               parseInt(furColor),
               imageHash.trim().replace(/^https:\/\/[^/]+\/ipfs\//, '')
             ).finally(() => setLoading(false));

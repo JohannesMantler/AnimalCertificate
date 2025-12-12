@@ -187,6 +187,50 @@
 		"inputs": [
 			{
 				"indexed": true,
+				"internalType": "uint256",
+				"name": "childId",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "motherId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			}
+		],
+		"name": "BirthReported",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "bool",
+				"name": "isPregnant",
+				"type": "bool"
+			}
+		],
+		"name": "PregnancyConfirmed",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
 				"internalType": "address",
 				"name": "from",
 				"type": "address"
@@ -352,6 +396,19 @@
 			}
 		],
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "confirmPregnancy",
+		"outputs": [],
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -600,6 +657,59 @@
 			}
 		],
 		"name": "removeVaccination",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_motherId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "_child1Name",
+				"type": "string"
+			},
+			{
+				"internalType": "uint8",
+				"name": "_child1Gender",
+				"type": "uint8"
+			},
+			{
+				"internalType": "uint8",
+				"name": "_child1Color",
+				"type": "uint8"
+			},
+			{
+				"internalType": "string",
+				"name": "_child1ImageHash",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_child2Name",
+				"type": "string"
+			},
+			{
+				"internalType": "uint8",
+				"name": "_child2Gender",
+				"type": "uint8"
+			},
+			{
+				"internalType": "uint8",
+				"name": "_child2Color",
+				"type": "uint8"
+			},
+			{
+				"internalType": "string",
+				"name": "_child2ImageHash",
+				"type": "string"
+			}
+		],
+		"name": "reportBirth",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"

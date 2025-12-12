@@ -182,7 +182,7 @@ const ShowAll = () => {
   ];
 
   return (
-    <main className="glass-card p-6 mt-32 max-w-6xl mx-auto">
+    <main className="p-6 mt-32 max-w-6xl mx-auto">
       <h1 className="page-heading mb-6">Registered Animals</h1>
 
       <div className="flex flex-wrap gap-2 mb-6">

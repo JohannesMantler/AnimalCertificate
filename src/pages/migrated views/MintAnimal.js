@@ -86,7 +86,7 @@ const handleVaccinationsChange = (e) =>
         address: contract_address,
         abi: contract_abi,
         functionName: 'mint',
-        args: [gender, species, name, birthdate, diseases, furColor, imageHash]
+        args: [gender, species, name, birthdate, diseases, vacccinations, furColor, imageHash]
       });
   
       console.log("✅ prepareWriteContract successful:", config);

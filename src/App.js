@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import Nft from "./pages/About";
 import ShowAll from './pages/ShowAll';
 import NoPage from "./pages/NoPage";
+import Faq from "./pages/Faq";
 
 import AnimalDetails from './pages/AnimalDetails';
 import AnimalsByOwner from './pages/AnimalsByOwner';
@@ -25,6 +26,7 @@ const App = () => {
                 <Routes>
                     <Route path="/" element={<Layout />}>
                         <Route index element={<Home />} />
+                        <Route path="/faq" element={<Faq/>} />
                         <Route path="nft" element={<Nft />} />
                         <Route path="animals">
                             <Route index element={<ShowAll />} />

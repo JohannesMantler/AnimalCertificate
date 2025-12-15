@@ -26,6 +26,7 @@ const Navbar = () => {
         <ul className="hidden md:flex gap-x-4 items-center">
           <li><Link className="nav-link" to="/">Home</Link></li>
           <li><Link className="nav-link" to="/animals">Show All</Link></li>
+          <li><Link className="nav-link" to="/faq">FAQ</Link></li>
           {isConnected && (
             <li><Link className="nav-link" to={`/owner/${address}`}>Your Pets</Link></li>
           )}
@@ -48,6 +49,7 @@ const Navbar = () => {
         ${active ? "-translate-x-full opacity-0" : "translate-x-0 opacity-100"}`}>
         <span className="nav-element" onClick={toggleBurger}><Link className="nav-link" to="/">Home</Link></span>
         <span className="nav-element" onClick={toggleBurger}><Link className="nav-link" to="/animals">Show All</Link></span>
+        <span className="nav-element" onClick={toggleBurger}><Link className="nav-link" to="/faq">FAQ</Link></span>
         {isConnected && (
           <span className="nav-element" onClick={toggleBurger}><Link className="nav-link" to={`/owner/${address}`}>Your Pets</Link></span>
         )}

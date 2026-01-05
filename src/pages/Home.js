@@ -1,72 +1,165 @@
-import React, { useRef } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { setSearchString } from '../redux/slices/sorterSlice';
-import { useContractRead } from 'wagmi';
-import AnimalCertificateABI from '../abis/AnimalCertificate.json';
+import React from "react";
+import { useSelector } from "react-redux";
+import { useContractRead } from "wagmi";
+import AnimalCertificateABI from "../abis/AnimalCertificate.json";
 import { Link } from "react-router-dom";
 
+const Feature = ({ title, text }) => (
+  <div className="milky-glass rounded-2xl border border-white/10 p-5 shadow backdrop-blur-xl">
+    <h3 className="text-lg font-semibold text-white">{title}</h3>
+    <p className="mt-2 text-white/75 leading-relaxed">{text}</p>
+  </div>
+);
+
 const Home = () => {
-  const searchRef = useRef(null);
-  const dispatch = useDispatch();
+  const contractAddress = useSelector((state) => state.contract.address);
 
   const contract_supply = useContractRead({
     abi: AnimalCertificateABI,
-    address: useSelector((state) => state.contract.address),
-    functionName: 'totalSupply',
+    address: contractAddress,
+    functionName: "totalSupply",
     watch: true,
   });
 
-  const handleSearchClick = () => {
-    if (searchRef.current) {
-      dispatch(setSearchString(searchRef.current.value));
-      window.location.href = "/animals/";
-    }
-  };
+  const supplyText = (() => {
+    if (contract_supply.isSuccess) return Number(contract_supply.data);
+    if (contract_supply.isLoading) return "…";
+    return "—";
+  })();
 
   return (
-    <main className="p-8 mx-auto max-w-5xl glass-card mt-32">
-      <h1 className="text-5xl md:text-7xl font-bold text-center soft-glow-text mb-6 font-inter">
-        Animal Certificate
-      </h1>
+    <main className="pt-24 px-4">
+      <section className="mx-auto max-w-6xl">
+        <div className="milky-glass rounded-3xl border border-white/10 shadow backdrop-blur-xl p-7 md:p-10">
+          <div className="flex flex-col gap-6">
+            <div>
+              <h1 className="text-4xl md:text-6xl font-bold text-white tracking-tight">
+                Animal Certificate
+              </h1>
+              <p className="mt-3 text-lg md:text-xl text-white/70 leading-relaxed">
+                Your pet’s digital identity — built for trust, transparency, and long-term proof. 🐾
+              </p>
+            </div>
 
-      <h2 className="text-xl text-center text-gray-300 font-medium mb-10">
-        Introducing <span className="text-white font-semibold">Animal Certificate</span>: your pet’s digital identity 🐾
-      </h2>
+            <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-6">
+              <div className="milky-glass rounded-2xl border border-white/10 px-4 py-3 text-white/80">
+                <span className="text-white font-semibold">{supplyText}</span>{" "}
+                pets certified so far
+              </div>
 
-      {/* Search Bar */}
-      <div className="flex justify-center mb-12">
-        <div className="flex flex-col w-full max-w-md">
-          <label className="text-sm text-gray-400 mb-2">Find a certificate</label>
-          <div className="relative">
-            <input
-              ref={searchRef}
-              type="text"
-              placeholder="0x..."
-              className="bg-transparent border-b-2 border-gray-400 text-white text-xl w-full focus:outline-none focus:border-blue-300"
-            />
-            <button
-              onClick={handleSearchClick}
-              className="absolute right-0 top-0 mt-2 text-sm underline text-blue-300 hover:no-underline"
-            >
-              [Find...]
-            </button>
+              <div className="flex gap-3">
+                <Link
+                  to="/animals"
+                  className="rounded-2xl px-5 py-3 font-semibold text-white milky-glass border border-white/10 hover:border-white/20 transition"
+                >
+                  Browse Certificates
+                </Link>
+              </div>
+            </div>
+
+            {contract_supply.isError && (
+              <div className="text-sm text-red-300">
+                {contract_supply.error?.toString?.() || "Contract read error"}
+              </div>
+            )}
           </div>
-          <Link to="/animals" className="mt-4 text-sm underline text-gray-300 hover:text-white">[Find all...]</Link>
         </div>
-      </div>
+      </section>
 
-      {/* Info Block */}
-      <section className="mt-10">
-        <h3 className="text-2xl font-semibold text-white mb-3">
-          <span className="mr-2">&#9658;</span> Mission:
-        </h3>
-        <p className="text-lg text-gray-200 leading-relaxed">
-          🌟 Welcome to the FUTURE of pet care! 🌟 <br />
-          There are currently <strong>
-            {contract_supply.isSuccess ? Number(contract_supply.data) : contract_supply.status}
-          </strong> pets certified through our service.<br />
-          {contract_supply.isError && <span className="text-red-400 text-sm">{contract_supply.error.toString()}</span>}
-        </p>
+      <section className="mx-auto max-w-6xl mt-10">
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="milky-glass rounded-3xl border border-white/10 shadow backdrop-blur-xl p-7 md:p-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-white">
+              Why blockchain makes sense for pet data
+            </h2>
+            <p className="mt-4 text-white/75 leading-relaxed">
+              Pet records matter for years — ownership changes, vets change, breeders
+              document lineage, and buyers want proof. A blockchain-backed certificate
+              creates a tamper-resistant timeline of key events, so trust doesn’t depend
+              on one platform, one person, or one database.
+            </p>
+
+            <div className="mt-6 space-y-3 text-white/75 leading-relaxed">
+              <p>
+                <span className="text-white font-semibold">Immutable history:</span>{" "}
+                Updates are possible, but past entries remain auditable. That makes
+                silent edits and “lost paperwork” far harder.
+              </p>
+              <p>
+                <span className="text-white font-semibold">Portable ownership:</span>{" "}
+                The certificate can be transferred with the pet — providing continuity
+                across owners and jurisdictions.
+              </p>
+              <p>
+                <span className="text-white font-semibold">Verifiable trust:</span>{" "}
+                Vaccinations, treatments, and breeding events can be proven as recorded
+                at a specific time — useful for sales, insurance, and veterinary care.
+              </p>
+              <p>
+                <span className="text-white font-semibold">Controlled access:</span>{" "}
+                You can keep sensitive details private while still proving that a record
+                exists and was not altered.
+              </p>
+            </div>
+
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link
+                to="/faq"
+                className="rounded-2xl px-5 py-3 font-semibold text-white milky-glass border border-white/10 hover:border-white/20 transition"
+              >
+                Read the FAQ
+              </Link>
+            </div>
+          </div>
+
+          {/* FEATURES */}
+          <div className="grid gap-4">
+            <Feature
+              title="Tamper-resistant medical timeline"
+              text="Keep vaccinations, treatments, and documents in one place with an auditable change history."
+            />
+            <Feature
+              title="Breeding & lineage proof"
+              text="Document pregnancies, births, and parent relationships to increase transparency in breeding."
+            />
+            <Feature
+              title="Faster handovers"
+              text="When ownership changes, the certificate can move with the pet — no messy paperwork."
+            />
+            <Feature
+              title="Privacy by design"
+              text="Share only what’s needed with vets, breeders, or buyers — while preserving verifiable integrity."
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER CTA */}
+      <section className="mx-auto max-w-6xl mt-10 pb-16">
+        <div className="milky-glass rounded-3xl border border-white/10 shadow backdrop-blur-xl p-7 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div>
+            <h3 className="text-xl md:text-2xl font-bold text-white">
+              Ready to create your pet’s certificate?
+            </h3>
+            <p className="mt-2 text-white/70">
+              Mint a token once, then keep records organized for the long run.
+            </p>
+          </div>
+          <div className="flex gap-3">
+          <Link
+              to="/animals/new"
+              className="rounded-2xl px-5 py-3 font-semibold text-slate-900 bg-white hover:bg-white/90 transition"
+            >
+                Mint a Token
+          </Link>
+            <Link
+              to="/animals"
+              className="rounded-2xl px-5 py-3 font-semibold text-white milky-glass border border-white/10 hover:border-white/20 transition"
+            >
+              View Certificates
+            </Link>
+          </div>
+        </div>
       </section>
     </main>
   );

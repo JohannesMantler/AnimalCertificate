@@ -2,15 +2,15 @@ import React, { useMemo, useState } from "react";
 
 const FAQ_DATA = [
   {
-    category: "Allgemein",
+    category: "General",
     items: [
       {
-        q: "Was ist diese Plattform?",
-        a: "Unsere Plattform bietet eine digitale Identität für Haustiere, basierend auf Blockchain-Technologie. Jedes Haustier erhält einen einzigartigen Token, in dem wichtige Lebens-, Gesundheits- und Zuchtdaten sicher gespeichert werden.",
+        q: "What is this platform?",
+        a: "Our platform provides a digital identity for pets based on blockchain technology. Each pet receives a unique token in which important life, health, and breeding data are securely stored.",
       },
       {
-        q: "Warum Blockchain für Haustiere?",
-        a: "Blockchain sorgt für Fälschungssicherheit, Transparenz und Nachvollziehbarkeit. Einmal gespeicherte Daten können nicht heimlich manipuliert oder gelöscht werden – ideal für Vertrauen bei Zucht, Verkauf und medizinischer Betreuung.",
+        q: "Why blockchain for pets?",
+        a: "Blockchain ensures tamper resistance, transparency, and traceability. Once stored, data cannot be secretly altered or deleted — ideal for trust in breeding, sales, and veterinary care.",
       },
     ],
   },
@@ -18,76 +18,77 @@ const FAQ_DATA = [
     category: "Token & NFT",
     items: [
       {
-        q: "Was ist ein Haustier-Token?",
-        a: "Ein Haustier-Token ist eine digitale, eindeutige Identität deines Haustiers. Er repräsentiert dein Tier auf der Blockchain und enthält alle relevanten Informationen.",
+        q: "What is a pet token?",
+        a: "A pet token is a digital, unique identity for your pet. It represents your animal on the blockchain and contains all relevant information.",
       },
       {
-        q: "Welche Daten sind im Token gespeichert?",
-        a: "Der Token kann u. a. enthalten: Geburtsdatum, Krankheiten & Behandlungen, Impfungen, Bilder & Dokumente, Schwangerschaften & Geburten sowie eine Historie von Änderungen.",
+        q: "What data is stored in the token?",
+        a: "The token can include, among other things: date of birth, illnesses & treatments, vaccinations, images & documents, pregnancies & births, as well as a full change history.",
       },
       {
-        q: "Ist mein Haustier ein NFT?",
-        a: "Technisch ja – aber nicht im spekulativen Sinne. Der Token dient nicht dem Handel, sondern der sicheren Dokumentation und Identifikation.",
-      },
-    ],
-  },
-  {
-    category: "Sicherheit & Datenschutz",
-    items: [
-      {
-        q: "Sind meine Daten sicher?",
-        a: "Ja. Sensible Inhalte können verschlüsselt oder nur für berechtigte Personen sichtbar gemacht werden. Die Blockchain sorgt für hohe Integrität der Historie.",
-      },
-      {
-        q: "Wer kann die Daten sehen?",
-        a: "Du bestimmst, wer Zugriff hat (z. B. Besitzer, Tierarzt, Züchter, Käufer).",
-      },
-      {
-        q: "Können Daten geändert werden?",
-        a: "Ja. Daten können aktualisiert werden – Änderungen bleiben nachvollziehbar dokumentiert (Audit-Historie).",
+        q: "Is my pet an NFT?",
+        a: "Technically yes — but not in a speculative sense. The token is not intended for trading, but for secure documentation and identification.",
       },
     ],
   },
   {
-    category: "Zucht",
+    category: "Security & Privacy",
     items: [
       {
-        q: "Kann ich Schwangerschaften eintragen?",
-        a: "Ja. Schwangerschaften können inklusive Zeitraum, Elterntieren und Zusatzinfos eingetragen werden.",
+        q: "Is my data secure?",
+        a: "Yes. Sensitive content can be encrypted or made visible only to authorized parties. The blockchain ensures a high level of data integrity.",
       },
       {
-        q: "Wie werden Geburten dokumentiert?",
-        a: "Geburten können erfasst werden (Datum, Anzahl, Notizen) und – wenn vorhanden – mit Tokens der Nachkommen verknüpft werden.",
+        q: "Who can see the data?",
+        a: "You decide who has access (e.g., owner, veterinarian, breeder, buyer).",
+      },
+      {
+        q: "Can data be changed?",
+        a: "Yes. Data can be updated — all changes remain transparently documented in an audit history.",
       },
     ],
   },
   {
-    category: "Verkauf & Besitz",
+    category: "Breeding",
     items: [
       {
-        q: "Was passiert beim Verkauf eines Tieres?",
-        a: "Der Token kann sicher an den neuen Besitzer übertragen werden – inklusive kompletter Historie für Transparenz.",
+        q: "Can I record pregnancies?",
+        a: "Yes. Pregnancies can be recorded including time period, parent animals, and additional information.",
       },
       {
-        q: "Kann man Daten nach dem Verkauf löschen?",
-        a: "Die Historie bleibt erhalten, um Manipulationen zu vermeiden. Sichtbarkeit/Permissions können jedoch geregelt werden.",
+        q: "How are births documented?",
+        a: "Births can be recorded (date, number of offspring, notes) and — if available — linked to the tokens of the offspring.",
       },
     ],
   },
   {
-    category: "Kosten & Nutzung",
+    category: "Sales & Ownership",
     items: [
       {
-        q: "Was kostet das Minten eines Tokens?",
-        a: "Die Kosten hängen von der verwendeten Blockchain ab. Die Gebühren werden transparent vor dem Minten angezeigt.",
+        q: "What happens when an animal is sold?",
+        a: "The token can be securely transferred to the new owner — including the complete history for full transparency.",
       },
       {
-        q: "Brauche ich Krypto-Kenntnisse?",
-        a: "Nein. Die Plattform ist so aufgebaut, dass sie auch ohne Blockchain-Vorkenntnisse einfach genutzt werden kann.",
+        q: "Can data be deleted after a sale?",
+        a: "The historical record remains intact to prevent manipulation. Visibility and permissions can still be managed.",
+      },
+    ],
+  },
+  {
+    category: "Costs & Usage",
+    items: [
+      {
+        q: "How much does minting a token cost?",
+        a: "The cost depends on the blockchain used. Fees are displayed transparently before minting.",
+      },
+      {
+        q: "Do I need crypto knowledge?",
+        a: "No. The platform is designed to be easy to use even without prior blockchain experience.",
       },
     ],
   },
 ];
+
 
 function FaqItem({ q, a, open, onToggle }) {
   return (
@@ -141,14 +142,14 @@ export default function FaqPage() {
       <div className="milky-glass rounded-3xl shadow backdrop-blur-xl border border-white/10 p-6 md:p-8">
         <h1 className="text-3xl md:text-4xl font-bold">FAQ</h1>
         <p className="text-white/70 mt-2">
-          Antworten auf die häufigsten Fragen zu Token, Gesundheit, Zucht und Besitz.
+          Answers to the most frequently asked questions about tokens, health, breeding, and ownership.
         </p>
 
         <div className="mt-6">
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder='Suchen… (z.B. "Impfungen", "Verkauf", "Kosten")'
+            placeholder='Search… (e.g. "vaccinations", "sale", "costs")'
             className="w-full rounded-2xl px-4 py-3 milky-glass border border-white/10 outline-none focus:border-white/20 text-slate-900 placeholder:text-slate-500"
           />
         </div>
@@ -157,7 +158,7 @@ export default function FaqPage() {
       <div className="mt-6 space-y-6">
         {filtered.length === 0 ? (
           <div className="milky-glass rounded-2xl shadow backdrop-blur-xl border border-white/10 p-5 text-white/80">
-            Keine Treffer. Versuch’s mit einem anderen Begriff.
+            No results found. Try using a different term.
           </div>
         ) : (
           filtered.map((cat, ci) => (
@@ -165,7 +166,7 @@ export default function FaqPage() {
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold">{cat.category}</h2>
                 <span className="text-sm text-white/50">
-                  {cat.items.length} {cat.items.length === 1 ? "Frage" : "Fragen"}
+                  {cat.items.length} {cat.items.length === 1 ? "Question" : "Questions"}
                 </span>
               </div>
 

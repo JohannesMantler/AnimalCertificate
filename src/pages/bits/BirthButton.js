@@ -1,21 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { prepareWriteContract, writeContract } from "wagmi/actions";
-import { setCountdown, setColor, setLink, setText } from '../../redux/slices/tooltipSlice';
+import { setCountdown, setColor, setText } from '../../redux/slices/tooltipSlice';
 import { useAccount } from 'wagmi';
 import ReusableDropdown from './ReusableDropdown';
+
+// JWT Token aus deinem Code Snippet
+const PINATA_JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI4YzdmZmQyMS1iOTRhLTRhOWUtODc4Yi1iMTY0MjBhOTZlZGQiLCJlbWFpbCI6ImlmMjNiMTc0QHRlY2huaWt1bS13aWVuLmF0IiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6IjUxYTA3ODQxMGU1NjVmZTg0M2E5Iiwic2NvcGVkS2V5U2VjcmV0IjoiMzcyMzZmNDRlNTAxNGUyNTZkMGJiMmEzOTkyYzQ5ODExN2RmNzIxMDZmZGNkMTRmNzFmNDQ0MmQzMWU3ZWIxZSIsImV4cCI6MTc3NTQ3OTU2Nn0.LsynbOrbkACZZsnc4zd2ztSGb_Xxdh1Lym_go61P-DU';
 
 const BirthButton = ({ animal }) => {
     const dispatch = useDispatch();
     const { address } = useAccount();
 
-    // States für Modal
     const [isModalOpen, setModalOpen] = useState(false);
     const [isErrorOpen, setIsErrorOpen] = useState(false);
-
-    // Anzahl der Kinder (Standard 2)
     const [childCount, setChildCount] = useState(2);
-    // Speicher für die Daten aller Kinder
     const [childrenData, setChildrenData] = useState([]);
 
     const contract_abi = useSelector((state) => state.contract.abi);
@@ -29,17 +28,23 @@ const BirthButton = ({ animal }) => {
         { label: 'Red', value: 4 }, { label: 'Orange', value: 5 }
     ];
 
-    // Initialisiere oder update childrenData basierend auf childCount
+    // Initialisiere childrenData
     useEffect(() => {
         setChildrenData(prev => {
             const newData = [...prev];
             if (newData.length < childCount) {
-                // Füge fehlende Kinder hinzu
                 for (let i = newData.length; i < childCount; i++) {
-                    newData.push({ name: '', gender: 0, color: 0 });
+                    newData.push({
+                        name: '',
+                        gender: 0,
+                        color: 0,
+                        file: null,
+                        preview: null,
+                        ipfsHash: '', // Hier speichern wir den Hash von Pinata
+                        uploading: false // Status für Ladeanzeige
+                    });
                 }
             } else if (newData.length > childCount) {
-                // Entferne überschüssige Kinder
                 newData.splice(childCount);
             }
             return newData;
@@ -54,35 +59,115 @@ const BirthButton = ({ animal }) => {
         });
     };
 
+    // Upload Logik (übernommen und angepasst für Liste)
+    const handleFileSelect = async (index, e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // 1. Vorschau setzen & Upload Status aktivieren
+        const previewUrl = URL.createObjectURL(file);
+        setChildrenData(prev => {
+            const newData = [...prev];
+            newData[index] = {
+                ...newData[index],
+                file: file,
+                preview: previewUrl,
+                uploading: true,
+                ipfsHash: '' // Reset Hash bei neuem Bild
+            };
+            return newData;
+        });
+
+        // 2. Upload zu Pinata
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const res = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${PINATA_JWT}`
+                },
+                body: formData
+            });
+
+            const data = await res.json();
+
+            if (!data || !data.IpfsHash) {
+                throw new Error("Upload succeeded, but no IPFS hash returned.");
+            }
+
+            console.log(`✅ Image for child ${index + 1} uploaded:`, data.IpfsHash);
+
+            // 3. Hash speichern & Status aktualisieren
+            setChildrenData(prev => {
+                const newData = [...prev];
+                newData[index] = {
+                    ...newData[index],
+                    uploading: false,
+                    ipfsHash: data.IpfsHash
+                };
+                return newData;
+            });
+
+            dispatch(setColor("green"));
+            dispatch(setText("Bild erfolgreich hochgeladen!"));
+            dispatch(setCountdown(2000));
+
+        } catch (err) {
+            console.error("❌ Upload error:", err);
+
+            setChildrenData(prev => {
+                const newData = [...prev];
+                newData[index] = { ...newData[index], uploading: false };
+                return newData;
+            });
+
+            dispatch(setColor("red"));
+            dispatch(setText("Bild Upload fehlgeschlagen"));
+            dispatch(setCountdown(3000));
+        }
+    };
+
     const confirm_birth = async () => {
-        // Validierung: Haben alle Kinder einen Namen?
+        // Validierung: Namen & Upload Status
         const allNamed = childrenData.every(child => child.name && child.name.trim() !== '');
+        const anyUploading = childrenData.some(child => child.uploading);
+
         if (!allNamed) {
-            console.error("Namen fehlen für einige Kinder");
+            dispatch(setColor("red"));
+            dispatch(setText("Namen fehlen!"));
+            dispatch(setCountdown(3000));
+            return false;
+        }
+
+        if (anyUploading) {
+            dispatch(setColor("orange"));
+            dispatch(setText("Bitte warten, Bilder werden noch hochgeladen..."));
+            dispatch(setCountdown(3000));
             return false;
         }
 
         try {
             console.log(`Sende Geburtsdaten für ${childCount} Kinder an Blockchain...`);
 
-            // Wir bereiten die Arrays vor
             const names = childrenData.map(c => c.name);
             const genders = childrenData.map(c => c.gender);
             const colors = childrenData.map(c => c.color);
-            // Generiere Placeholder Hashes
-            const hashes = childrenData.map((_, i) => `QmDefaultHash${i + 1}`);
 
-            // HINWEIS: Wir gehen davon aus, dass der Smart Contract nun Arrays akzeptiert
+            // Verwende den gespeicherten IPFS Hash. Wenn keiner da ist, leerer String.
+            const hashes = childrenData.map(c => c.ipfsHash || "");
+
             const config = await prepareWriteContract({
                 address: contract_address,
                 abi: contract_abi,
                 functionName: 'reportBirth',
                 args: [
-                    animal.id,  // Mutter ID
-                    names,      // string[] names
-                    genders,    // uint[] genders
-                    colors,     // uint[] colors
-                    hashes      // string[] hashes
+                    animal.id,
+                    names,
+                    genders,
+                    colors,
+                    hashes
                 ]
             });
 
@@ -96,6 +181,9 @@ const BirthButton = ({ animal }) => {
             return true;
         } catch (error) {
             console.error("Fehler bei reportBirth:", error);
+            dispatch(setColor("red"));
+            dispatch(setText(error.message || "Fehler bei der Transaktion"));
+            dispatch(setCountdown(4000));
             return false;
         }
     };
@@ -105,13 +193,15 @@ const BirthButton = ({ animal }) => {
             if (success) {
                 setModalOpen(false);
             } else {
-                setIsErrorOpen(true);
+                // Bei Fehler lassen wir das Modal offen, damit man korrigieren kann
+                // setIsErrorOpen(true); -> Optional, oder wir nutzen Tooltips
             }
         });
     };
 
-    // Validierung für den Button
     const isFormValid = childrenData.length > 0 && childrenData.every(c => c.name.trim() !== '');
+    // Check ob gerade noch etwas hochlädt
+    const isUploading = childrenData.some(c => c.uploading);
 
     return (
         <>
@@ -128,7 +218,6 @@ const BirthButton = ({ animal }) => {
                         <h2 className="text-xl font-bold mb-4 text-center">Geburt melden</h2>
                         <p className="text-sm text-gray-500 mb-4 text-center">Der Vater ist durch die vorherige Paarung bereits festgelegt.</p>
 
-                        {/* Auswahl der Anzahl */}
                         <div className="mb-6 flex justify-center items-center gap-4">
                             <label className="font-bold">Anzahl der Kinder:</label>
                             <select
@@ -137,18 +226,20 @@ const BirthButton = ({ animal }) => {
                                 onChange={(e) => setChildCount(parseInt(e.target.value))}
                             >
                                 {[...Array(10)].map((_, i) => (
-                                    <option key={i + 1} value={i + 1}>
-                                        {i + 1}
-                                    </option>
+                                    <option key={i + 1} value={i + 1}>{i + 1}</option>
                                 ))}
                             </select>
                         </div>
 
-                        {/* Grid für die Kinder */}
                         <div className="grid grid-cols-2 gap-4">
                             {childrenData.map((child, index) => (
                                 <div key={index} className="p-3 border rounded bg-gray-50">
-                                    <h3 className="font-bold mb-2 border-b pb-1">Kind {index + 1}</h3>
+                                    <h3 className="font-bold mb-2 border-b pb-1 flex justify-between">
+                                        Kind {index + 1}
+                                        {child.uploading && <span className="text-xs text-blue-500 animate-pulse">Lade Bild...</span>}
+                                        {!child.uploading && child.ipfsHash && <span className="text-xs text-green-600">✓ Bild bereit</span>}
+                                    </h3>
+
                                     <div className="mb-3">
                                         <label className="block text-sm font-bold mb-1">Name</label>
                                         <input
@@ -156,7 +247,7 @@ const BirthButton = ({ animal }) => {
                                             className="border p-2 w-full rounded"
                                             value={child.name}
                                             onChange={(e) => updateChild(index, 'name', e.target.value)}
-                                            placeholder={`Name Kind ${index + 1}`}
+                                            placeholder={`Name`}
                                         />
                                     </div>
                                     <div className="mb-3">
@@ -175,11 +266,40 @@ const BirthButton = ({ animal }) => {
                                             default_label="Black"
                                         />
                                     </div>
+
+                                    {/* BILD UPLOAD */}
+                                    <div className="mb-3">
+                                        <label className="block text-sm font-bold mb-1">Bild hochladen (Optional)</label>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="border p-2 w-full rounded text-sm bg-white"
+                                            onChange={(e) => handleFileSelect(index, e)}
+                                            disabled={child.uploading}
+                                        />
+                                    </div>
+
+                                    {/* VORSCHAU */}
+                                    {child.preview && (
+                                        <div className="flex justify-center mb-2">
+                                            <div className={`w-16 h-16 rounded-full overflow-hidden border-2 ${child.uploading ? 'border-blue-400' : 'border-green-500'} bg-gray-100 relative`}>
+                                                <img
+                                                    src={child.preview}
+                                                    alt="Vorschau"
+                                                    className={`w-full h-full object-cover ${child.uploading ? 'opacity-50' : ''}`}
+                                                />
+                                                {child.uploading && (
+                                                    <div className="absolute inset-0 flex items-center justify-center">
+                                                        <span className="text-xs font-bold text-blue-800">...</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>
 
-                        {/* Buttons */}
                         <div className="flex justify-end gap-2 mt-6">
                             <button
                                 className="bg-gray-300 px-4 py-2 rounded font-bold text-gray-700"
@@ -189,23 +309,13 @@ const BirthButton = ({ animal }) => {
                                 Abbrechen
                             </button>
                             <button
-                                className={`px-4 py-2 rounded font-bold text-white ${!isFormValid ? 'bg-green-300 cursor-not-allowed' : 'bg-green-600 hover:bg-green-500'}`}
+                                className={`px-4 py-2 rounded font-bold text-white transition-all ${(!isFormValid || isUploading) ? 'bg-green-300 cursor-not-allowed' : 'bg-green-600 hover:bg-green-500'}`}
                                 onClick={handleConfirm}
-                                disabled={!isFormValid}
+                                disabled={!isFormValid || isUploading}
                             >
-                                Bestätigen & Minten
+                                {isUploading ? 'Warte auf Uploads...' : 'Bestätigen & Minten'}
                             </button>
                         </div>
-                    </div>
-                </div>
-            )}
-
-            {isErrorOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{zIndex: 1100}}>
-                    <div className="bg-red-100 border-l-4 border-red-500 p-6 rounded text-red-700">
-                        <p className="font-bold">Fehler</p>
-                        <p>Transaktion fehlgeschlagen. Möglicherweise akzeptiert der Contract keine Arrays oder die Daten sind ungültig.</p>
-                        <button className="mt-4 bg-red-500 text-white px-4 py-2 rounded" onClick={() => setIsErrorOpen(false)}>OK</button>
                     </div>
                 </div>
             )}

@@ -73,7 +73,6 @@
     @apply glass-panel p-6 elevated-card transition-all duration-300 hover:scale-[1.01];
   }
 
-  /* Optional Radial Menu Styling (if needed) */
   .radial-menu-container {
     @apply flex flex-col justify-center items-center relative;
   }

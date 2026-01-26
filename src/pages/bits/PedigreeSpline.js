@@ -55,9 +55,9 @@ const PedigreeSpline = ({ splineRefs, componentRef1id, componentRef2id }) => {
     const handleDrag = (event) => {
         
         let exactPos = {
-            id: event.target.id, // id of dragged element
-            x: event.clientX, // x where dragend
-            y: event.clientY // y where dragend
+            id: event.target.id,
+            x: event.clientX,
+            y: event.clientY
         };
 
         if (handleDrag.timeoutId) {

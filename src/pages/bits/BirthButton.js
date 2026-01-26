@@ -5,7 +5,6 @@ import { setCountdown, setColor, setText } from '../../redux/slices/tooltipSlice
 import { useAccount } from 'wagmi';
 import ReusableDropdown from './ReusableDropdown';
 
-// JWT Token aus deinem Code Snippet
 const PINATA_JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI4YzdmZmQyMS1iOTRhLTRhOWUtODc4Yi1iMTY0MjBhOTZlZGQiLCJlbWFpbCI6ImlmMjNiMTc0QHRlY2huaWt1bS13aWVuLmF0IiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6IjUxYTA3ODQxMGU1NjVmZTg0M2E5Iiwic2NvcGVkS2V5U2VjcmV0IjoiMzcyMzZmNDRlNTAxNGUyNTZkMGJiMmEzOTkyYzQ5ODExN2RmNzIxMDZmZGNkMTRmNzFmNDQ0MmQzMWU3ZWIxZSIsImV4cCI6MTc3NTQ3OTU2Nn0.LsynbOrbkACZZsnc4zd2ztSGb_Xxdh1Lym_go61P-DU';
 
 const BirthButton = ({ animal }) => {
@@ -40,8 +39,8 @@ const BirthButton = ({ animal }) => {
                         color: 0,
                         file: null,
                         preview: null,
-                        ipfsHash: '', // Hier speichern wir den Hash von Pinata
-                        uploading: false // Status für Ladeanzeige
+                        ipfsHash: '', 
+                        uploading: false
                     });
                 }
             } else if (newData.length > childCount) {
@@ -59,7 +58,6 @@ const BirthButton = ({ animal }) => {
         });
     };
 
-    // Upload Logik (übernommen und angepasst für Liste)
     const handleFileSelect = async (index, e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -73,7 +71,7 @@ const BirthButton = ({ animal }) => {
                 file: file,
                 preview: previewUrl,
                 uploading: true,
-                ipfsHash: '' // Reset Hash bei neuem Bild
+                ipfsHash: ''
             };
             return newData;
         });
@@ -97,7 +95,7 @@ const BirthButton = ({ animal }) => {
                 throw new Error("Upload succeeded, but no IPFS hash returned.");
             }
 
-            console.log(`✅ Image for child ${index + 1} uploaded:`, data.IpfsHash);
+            console.log(`Image for child ${index + 1} uploaded:`, data.IpfsHash);
 
             // 3. Hash speichern & Status aktualisieren
             setChildrenData(prev => {
@@ -115,7 +113,7 @@ const BirthButton = ({ animal }) => {
             dispatch(setCountdown(2000));
 
         } catch (err) {
-            console.error("❌ Upload error:", err);
+            console.error("Upload error:", err);
 
             setChildrenData(prev => {
                 const newData = [...prev];
@@ -193,7 +191,6 @@ const BirthButton = ({ animal }) => {
             if (success) {
                 setModalOpen(false);
             } else {
-                // Bei Fehler lassen wir das Modal offen, damit man korrigieren kann
                 // setIsErrorOpen(true); -> Optional, oder wir nutzen Tooltips
             }
         });

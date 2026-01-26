@@ -43,7 +43,6 @@ const DeclareDeathButton = ({animal}) => {
     }
     
     const handleConfirm = () => {
-        // Set the state to close the modal
         setModalOpen(false);
         declare_death(animal.id)
             .then(r => {

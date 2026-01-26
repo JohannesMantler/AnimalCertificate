@@ -17,12 +17,11 @@ const AnimalsByOwner = () => {
   const abi = useSelector((s) => s.contract.abi);
   const contractAddress = useSelector((s) => s.contract.address);
 
-  // owner normalisieren/validieren
+  // owner validieren
   const ownerAddr = (() => {
     try { return isAddress(id ?? '') ? getAddress(id) : null; } catch { return null; }
   })();
 
-  // nur totalSupply beobachten (günstig)
   const totalSupply = useContractRead({
     abi,
     address: contractAddress,
@@ -68,13 +67,11 @@ const AnimalsByOwner = () => {
 
         const cleaned = {
           ...siftBigInt(animal),
-          owner: normalizedOwner, // already checksummed
+          owner: normalizedOwner,
         };
 
-        // UI smooth update
         setAllAnimals(prev => [...prev, cleaned]);
       } catch {
-        // nicht existent / burned → ignorieren
         continue;
       }
     }

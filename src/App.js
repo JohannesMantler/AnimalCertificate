@@ -1,7 +1,7 @@
 // src/App.js
 
-import './App.css'; // You can delete this after cleanup
-import './index.css'; // Import your new Tailwind styles
+import './App.css';
+import './index.css';
 
 import React from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom";

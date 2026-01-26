@@ -52,7 +52,6 @@ const AnimalDetails = () => {
   const normalizeAnimal = (a) => {
   if (!a) return null;
 
-  // viem often returns structs as objects with named properties
   if (typeof a === "object" && ("id" in a || "name" in a)) {
     return {
       id: a.id,
@@ -296,7 +295,7 @@ const AnimalDetails = () => {
   };
 
   const AbortPregnancyButton = () => {
-    if (!hasAbortPregnancy) return null; // don’t render button if not supported
+    if (!hasAbortPregnancy) return null;
 
     const [isModalOpen, setModalOpen] = useState(false);
     const [isErrorOpen, setIsErrorOpen] = useState(false);

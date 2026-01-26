@@ -4,7 +4,6 @@ import { Web3Context } from '../../Web3Context';
 import RadialMenu from '../pages/bits/RadialMenu';
 import { NFTStorage, File } from 'nft.storage';
 
-// ✅ Put your NFT.Storage API key here as a string
 const NFT_STORAGE_TOKEN = 'a04caecf.a66b3f99e54441f68d64a0829918aae2';
 
 class MintAnimal extends Component {

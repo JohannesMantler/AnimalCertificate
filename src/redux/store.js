@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { persistStore, persistReducer } from 'redux-persist';
-import storage from 'redux-persist/lib/storage'; // defaults to local storage
+import storage from 'redux-persist/lib/storage';
 import counterReducer from './slices/counterSlice';
 import contractReducer from './slices/contractSlice';
 import sorterReducer from './slices/sorterSlice';

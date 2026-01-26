@@ -18,7 +18,6 @@ const ConfirmPregnancyButton = ({ animal }) => {
     const { address, isConnected } = useAccount();
     const allAnimals = useSelector((state) => state.animal.animals);
 
-    // --- FIX: Robusterer Filter für Männliche Tiere ---
     const maleOwnerAnimals = allAnimals.filter(anim => {
         // 1. Owner Check (Groß/Kleinschreibung ignorieren)
         const isOwner = anim.owner && address && (anim.owner.toLowerCase() === address.toLowerCase());
@@ -27,7 +26,6 @@ const ConfirmPregnancyButton = ({ animal }) => {
         const isMale = anim.gender == 1 || anim.gender === '1' || anim.gender === 'Male';
 
         // 3. Spezies Check (muss gleich sein)
-        // Achtung: Falls Spezies als Zahl (0 vs "0") kommt, hier auch locker prüfen
         const sameSpecies = anim.species == animal.species;
 
         // 4. Lebt das Tier noch?
@@ -59,14 +57,12 @@ const ConfirmPregnancyButton = ({ animal }) => {
         try {
             console.log("Bereite Transaktion vor für Token ID:", id);
 
-            // --- FIX: Args angepasst ---
             // Der Contract erwartet nur EINEN Parameter (uint256 _tokenId).
-            // Wir senden 'maleId' NICHT mit, da die Funktion confirmPregnancy(uint256) heißt.
             const config = await prepareWriteContract({
                 address: contract_address,
                 abi: contract_abi,
                 functionName: 'confirmPregnancy',
-                args: [id] // Nur die ID der Mutter senden!
+                args: [id]
             });
 
             const transaction = await writeContract(config);
@@ -100,12 +96,11 @@ const ConfirmPregnancyButton = ({ animal }) => {
         setMaleId(value);
     };
 
-    // Dropdown Optionen vorbereiten
     let owned_animals_selectorate = [{ "label": "Keine passenden Männchen gefunden", "value": null }];
 
     if (maleOwnerAnimals.length > 0) {
         owned_animals_selectorate = maleOwnerAnimals.map((anim) => ({
-            label: `${anim.name} (ID: ${anim.id})`, // Zeigt Name und ID an
+            label: `${anim.name} (ID: ${anim.id})`,
             value: anim.id
         }));
     }

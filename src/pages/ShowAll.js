@@ -71,10 +71,6 @@ const ShowAll = () => {
 
       const twoMinutesAgo = Date.now() - 120000;
 
-      // Throttle nur wenn:
-      // - kein force refresh
-      // - vor <2 min aktualisiert
-      // - wir haben bereits gleich viele Tiere wie supply
       if (!force && lastAnimalUpdate >= twoMinutesAgo && allAnimals.length === supply) {
         console.log("⏩ Skipping fetch: throttled");
         return;
@@ -107,7 +103,7 @@ const ShowAll = () => {
 
           freshAnimals.push({
             ...siftBigInt(rawAnimal),
-            id: i, // fix ID
+            id: i,
             owner: normalizedOwner,
           });
 
@@ -116,7 +112,6 @@ const ShowAll = () => {
         }
       }
 
-      // ❗ Komplett ersetzen statt mergen
       dispatch(clearAnimals());
       dispatch(extendAnimals(freshAnimals));
 
@@ -161,7 +156,7 @@ const ShowAll = () => {
       if (!sortDir) sorted.reverse();
       setSortedAnimals(sorted);
     } catch (error) {
-      console.error("❌ Sort/Filter error:", error);
+      console.error("Sort/Filter error:", error);
       setSortedAnimals([]);
     }
   }, [allAnimals, sortBy, sortDir, searchString]);

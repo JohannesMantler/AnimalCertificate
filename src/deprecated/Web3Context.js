@@ -55,7 +55,7 @@ export class Web3Data {
     this.web3 = new Web3(new Web3.providers.HttpProvider(SEPOLIA_RPC));
     this.updateContract();
 
-    // falls Wallet vorhanden → Adresse optional setzen (ohne Zwang)
+    // falls Wallet vorhanden → Adresse optional setzen
     try {
       const { ethereum } = window;
       if (ethereum) {
